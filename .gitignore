@@ -1,0 +1,17 @@
+# Segreti locali
+.env
+.env.*
+!.env.example
+
+# Dipendenze e build
+node_modules/
+dist/
+target/
+
+# IDE e sistema
+.idea/
+*.iml
+.vscode/
+.DS_Store
+.claude/
+CLAUDE.md
