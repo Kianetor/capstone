@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -57,6 +58,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> noResource(NoResourceFoundException ex) {
         return Map.of("status", 404, "message", "Risorsa non trovata");
+    }
+
+    // Due modifiche contemporanee della stessa carta: la seconda deve ricaricare i dati
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, Object> optimisticLock(ObjectOptimisticLockingFailureException ex) {
+        return Map.of("status", 409, "message", "Dati modificati da un'altra richiesta, ricarica e riprova");
     }
 
     // Vincolo del database violato (es. due registrazioni identiche contemporanee): niente dettagli SQL al client
