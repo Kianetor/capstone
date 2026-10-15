@@ -74,6 +74,13 @@ public class GlobalExceptionHandler {
         return Map.of("status", 409, "message", "Operazione in conflitto con i dati esistenti");
     }
 
+    @ExceptionHandler(ExternalServiceException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public Map<String, Object> externalService(ExternalServiceException ex) {
+        log.warn("Servizio esterno non disponibile: {}", ex.getCause() != null ? ex.getCause().getMessage() : "-");
+        return Map.of("status", 503, "message", ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, Object> generic(Exception ex) {
