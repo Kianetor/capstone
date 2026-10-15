@@ -8,9 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -52,6 +54,13 @@ public class CardController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         cardService.delete(userId(jwt), id);
+    }
+
+    // multipart/form-data con il file nel campo "file"
+    @PostMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CardResponse uploadImage(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id,
+                                    @RequestParam("file") MultipartFile file) {
+        return cardService.uploadImage(userId(jwt), id, file);
     }
 
     @PostMapping("/{id}/transactions")

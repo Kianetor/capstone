@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.UUID;
@@ -37,6 +38,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final TransactionRepository transactionRepository;
     private final UserService userService;
+    private final ImageService imageService;
 
     @Transactional(readOnly = true)
     public PageResponse<CardResponse> search(UUID userId, CardSearchParams params, Pageable pageable) {
@@ -68,6 +70,15 @@ public class CardService {
     public CardResponse update(UUID userId, UUID cardId, CardRequest r) {
         Card card = findOwned(userId, cardId);
         apply(card, r);
+        return CardResponse.of(card);
+    }
+
+    // Prima controlliamo che la carta sia dell'utente, poi carichiamo: niente upload per carte altrui
+    @Transactional
+    public CardResponse uploadImage(UUID userId, UUID cardId, MultipartFile file) {
+        Card card = findOwned(userId, cardId);
+        card.setImageUrl(imageService.upload(file));
+        log.info("Foto caricata carta={}", cardId);
         return CardResponse.of(card);
     }
 
