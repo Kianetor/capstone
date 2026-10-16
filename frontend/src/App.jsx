@@ -2,8 +2,10 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
+import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Placeholder from './pages/Placeholder'
+import Register from './pages/Register'
 import { loadUser } from './store/authSlice'
 
 function App() {
@@ -19,9 +21,9 @@ function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Placeholder title="CardVault" />} />
-        <Route path="/login" element={<Placeholder title="Accedi" />} />
-        <Route path="/register" element={<Placeholder title="Registrati" />} />
+        <Route path="/" element={<Placeholder title="Pokéteca" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
         <Route path="/cards" element={<Placeholder title="Inventario" />} />
         <Route path="/cards/new" element={<Placeholder title="Aggiungi carta" />} />
