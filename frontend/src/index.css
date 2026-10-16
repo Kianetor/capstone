@@ -1,3 +1,122 @@
+/* Tema scuro "collezionista" sopra il tema dark di Bootstrap.
+   Per cambiare stile basta toccare le variabili qui sotto */
+:root,
+[data-bs-theme='dark'] {
+  --cv-bg: #0d1321;
+  --cv-surface: #151d2e;
+  --cv-surface-2: #1c2639;
+  --cv-border: #2a3650;
+  --cv-accent: #ffcb05; /* giallo Pokémon */
+  --cv-accent-hover: #ffd83d;
+  --cv-blue: #3d7dca;
+  --cv-text: #e8ecf4;
+  --cv-muted: #8b97ad;
+  --cv-success: #3ecf8e;
+  --cv-danger: #ff6b6b;
+
+  --bs-body-bg: var(--cv-bg);
+  --bs-body-color: var(--cv-text);
+  --bs-secondary-color: var(--cv-muted);
+  --bs-border-color: var(--cv-border);
+  --bs-tertiary-bg: var(--cv-surface);
+  --bs-link-color: var(--cv-accent);
+  --bs-link-hover-color: var(--cv-accent-hover);
+  --bs-link-color-rgb: 255, 203, 5;
+  --bs-link-hover-color-rgb: 255, 216, 61;
+  --bs-success: var(--cv-success);
+  --bs-danger: var(--cv-danger);
+  --bs-body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
 body {
   min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(61, 125, 202, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(255, 203, 5, 0.08), transparent 60%),
+    var(--cv-bg);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, .navbar-brand, .display-font {
+  font-family: 'Outfit', var(--bs-body-font-family);
+  letter-spacing: -0.01em;
+}
+
+/* Bottone principale giallo con testo scuro */
+.btn-primary {
+  --bs-btn-bg: var(--cv-accent);
+  --bs-btn-border-color: var(--cv-accent);
+  --bs-btn-color: #14181f;
+  --bs-btn-hover-bg: var(--cv-accent-hover);
+  --bs-btn-hover-border-color: var(--cv-accent-hover);
+  --bs-btn-hover-color: #14181f;
+  --bs-btn-active-bg: #e6b700;
+  --bs-btn-active-border-color: #e6b700;
+  --bs-btn-active-color: #14181f;
+  --bs-btn-disabled-bg: var(--cv-accent);
+  --bs-btn-disabled-border-color: var(--cv-accent);
+  --bs-btn-disabled-color: #14181f;
+  font-weight: 600;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--cv-accent);
+  --bs-btn-border-color: var(--cv-accent);
+  --bs-btn-hover-bg: var(--cv-accent);
+  --bs-btn-hover-border-color: var(--cv-accent);
+  --bs-btn-hover-color: #14181f;
+  --bs-btn-active-bg: var(--cv-accent);
+  --bs-btn-active-color: #14181f;
+}
+
+.text-accent {
+  color: var(--cv-accent) !important;
+}
+
+/* Superfici: card, modali, menu */
+.card,
+.modal-content,
+.dropdown-menu {
+  --bs-card-bg: var(--cv-surface);
+  --bs-card-border-color: var(--cv-border);
+  --bs-modal-bg: var(--cv-surface);
+  --bs-dropdown-bg: var(--cv-surface-2);
+  border-color: var(--cv-border);
+}
+
+.card {
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.6);
+}
+
+.form-control,
+.form-select {
+  background-color: var(--cv-surface-2);
+  border-color: var(--cv-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--cv-accent);
+  box-shadow: 0 0 0 0.2rem rgba(255, 203, 5, 0.2);
+}
+
+.form-check-input:checked {
+  background-color: var(--cv-accent);
+  border-color: var(--cv-accent);
+}
+
+/* Navbar semitrasparente che resta in alto */
+.cv-navbar {
+  background-color: rgba(13, 19, 33, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--cv-border);
+}
+
+.cv-navbar .nav-link.active {
+  color: var(--cv-accent);
+}
+
+.cv-logo {
+  color: var(--cv-accent);
 }
