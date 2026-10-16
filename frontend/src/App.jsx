@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Placeholder from './pages/Placeholder'
@@ -22,7 +23,7 @@ function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Placeholder title="Pokéteca" />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         {/* Pagine riservate: senza login si va a /login */}

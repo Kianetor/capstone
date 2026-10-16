@@ -122,3 +122,52 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
 .cv-logo {
   color: var(--cv-accent);
 }
+
+/* Landing: ventaglio di tre carte disegnate in CSS */
+.cv-hero-cards {
+  position: relative;
+  height: 380px;
+}
+
+.cv-hero-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 210px;
+  height: 294px; /* proporzione di una carta vera, 63 x 88 mm */
+  margin: -147px 0 0 -105px;
+  border-radius: 14px;
+  border: 6px solid #f3d36b;
+  box-shadow: 0 25px 50px -20px rgba(0, 0, 0, 0.8);
+  transition: transform 0.4s ease;
+}
+
+.cv-hero-card-1 {
+  background: linear-gradient(135deg, #3d7dca, #1d3f7a);
+  transform: translateX(-120px) rotate(-14deg);
+}
+
+.cv-hero-card-2 {
+  background: linear-gradient(135deg, #e5533d, #8c1f12);
+  transform: translateX(120px) rotate(14deg);
+}
+
+.cv-hero-card-3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 45%, transparent 60%),
+    linear-gradient(135deg, #ffcb05, #c79a00);
+  color: #0d1321;
+  font-size: 5rem;
+  transform: translateY(-10px);
+}
+
+.cv-hero-cards:hover .cv-hero-card-1 {
+  transform: translateX(-150px) rotate(-18deg);
+}
+
+.cv-hero-cards:hover .cv-hero-card-2 {
+  transform: translateX(150px) rotate(18deg);
+}
