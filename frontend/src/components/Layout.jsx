@@ -13,7 +13,7 @@ export default function Layout() {
         </Container>
       </main>
       <footer className="py-3 px-3 text-center small text-secondary border-top">
-        CardVault · gestionale per collezionisti di carte Pokémon
+        Pokéteca · gestionale per collezionisti di carte Pokémon
       </footer>
     </div>
   )

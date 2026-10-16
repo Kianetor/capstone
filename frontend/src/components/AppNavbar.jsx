@@ -22,7 +22,7 @@ export default function AppNavbar() {
           <span className="cv-logo">
             <Logo />
           </span>
-          CardVault
+          Pokéteca
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />
         <Navbar.Collapse id="main-nav">
