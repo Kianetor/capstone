@@ -3,6 +3,7 @@ import { Alert, Button, Form, Spinner } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AuthCard from '../components/AuthCard'
+import Loader from '../components/Loader'
 import { clearAuthError, login } from '../store/authSlice'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -18,7 +19,7 @@ export default function Login() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, loading, error } = useSelector((state) => state.auth)
+  const { user, loading, error, initializing } = useSelector((state) => state.auth)
   const [form, setForm] = useState({ email: '', password: '' })
   const [fieldErrors, setFieldErrors] = useState({})
 
@@ -27,6 +28,7 @@ export default function Login() {
 
   // Dopo il login torniamo alla pagina protetta da cui eravamo stati mandati qui
   const destination = location.state?.from ?? '/dashboard'
+  if (initializing) return <Loader />
   if (user) return <Navigate to={destination} replace />
 
   const handleChange = (e) => {

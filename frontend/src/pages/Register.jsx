@@ -3,6 +3,7 @@ import { Alert, Button, Form, Spinner } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import AuthCard from '../components/AuthCard'
+import Loader from '../components/Loader'
 import { clearAuthError, register } from '../store/authSlice'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -32,12 +33,13 @@ function backendFieldErrors(error) {
 export default function Register() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { user, loading, error } = useSelector((state) => state.auth)
+  const { user, loading, error, initializing } = useSelector((state) => state.auth)
   const [form, setForm] = useState({ username: '', email: '', password: '', confirmPassword: '' })
   const [fieldErrors, setFieldErrors] = useState({})
 
   useEffect(() => () => dispatch(clearAuthError()), [dispatch])
 
+  if (initializing) return <Loader />
   if (user) return <Navigate to="/dashboard" replace />
 
   const handleChange = (e) => {
