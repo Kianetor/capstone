@@ -221,6 +221,23 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   --bs-table-hover-bg: var(--cv-surface-2);
 }
 
+/* Risultati della ricerca esterna: griglia di miniature cliccabili */
+.cv-search-result {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.6rem;
+  background: none;
+  color: inherit;
+  text-align: center;
+}
+
+.cv-search-result:hover:not(:disabled),
+.cv-search-result:focus-visible {
+  border-color: var(--cv-accent);
+  background-color: var(--cv-surface-2);
+}
+
 .pagination {
   --bs-pagination-bg: var(--cv-surface);
   --bs-pagination-border-color: var(--cv-border);
