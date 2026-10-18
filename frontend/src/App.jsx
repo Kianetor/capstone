@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
+import CardForm from './pages/CardForm'
 import Inventory from './pages/Inventory'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
@@ -31,9 +32,9 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
           <Route path="/cards" element={<Inventory />} />
-          <Route path="/cards/new" element={<Placeholder title="Aggiungi carta" />} />
+          <Route path="/cards/new" element={<CardForm />} />
           <Route path="/cards/:id" element={<Placeholder title="Dettaglio carta" />} />
-          <Route path="/cards/:id/edit" element={<Placeholder title="Modifica carta" />} />
+          <Route path="/cards/:id/edit" element={<CardForm />} />
           <Route path="/transactions" element={<Placeholder title="Transazioni" />} />
         </Route>
         <Route path="*" element={<NotFound />} />
