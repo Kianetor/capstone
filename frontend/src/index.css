@@ -238,6 +238,21 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   background-color: var(--cv-surface-2);
 }
 
+/* Telefono: tre risultati per riga, testo più piccolo */
+@media (max-width: 575.98px) {
+  .cv-search-result {
+    padding: 0.25rem;
+  }
+
+  .cv-search-result .fw-semibold {
+    font-size: 0.8rem;
+  }
+
+  .cv-search-result .small {
+    font-size: 0.7rem;
+  }
+}
+
 .pagination {
   --bs-pagination-bg: var(--cv-surface);
   --bs-pagination-border-color: var(--cv-border);
