@@ -1,12 +1,10 @@
 package kian.backend.controllers;
 
 import kian.backend.payloads.ExternalCardDetail;
-import kian.backend.payloads.ExternalCardSummary;
+import kian.backend.payloads.ExternalSearchResponse;
 import kian.backend.services.ExternalCardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 // Tramite verso l'API esterna di carte Pokémon (solo utenti autenticati)
 @RestController
@@ -16,11 +14,12 @@ public class ExternalCardController {
 
     private final ExternalCardService externalCardService;
 
-    // Esempio: /api/external/cards/search?q=charizard&lang=it
+    // Esempi: ?q=charizard&lang=it&page=2, ?q=4/102, ?q=charizard 4/102, ?q=base1-4
     @GetMapping("/search")
-    public List<ExternalCardSummary> search(@RequestParam(required = false) String q,
-                                            @RequestParam(required = false) String lang) {
-        return externalCardService.search(q, lang);
+    public ExternalSearchResponse search(@RequestParam(required = false) String q,
+                                         @RequestParam(required = false) String lang,
+                                         @RequestParam(required = false) Integer page) {
+        return externalCardService.search(q, lang, page);
     }
 
     // Esempio: /api/external/cards/base1-4?lang=en
