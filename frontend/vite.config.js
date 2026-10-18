@@ -6,7 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:8080',
+      '/api': {
+        target: 'http://localhost:8080',
+        // Per il backend le richieste del proxy sono "stesso sito": togliamo Origin, altrimenti aprendo l'app
+        // da un altro indirizzo (es. dal telefono con l'IP del Mac) il controllo CORS risponderebbe 403
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => proxyReq.removeHeader('origin'))
+        },
+      },
     },
   },
 })
