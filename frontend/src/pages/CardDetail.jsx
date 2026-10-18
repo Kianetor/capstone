@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Badge, Button, Card, Col, Row, Table } from 'react-bootstrap'
+import { Alert, Badge, Button, Card, Col, Row, Table } from 'react-bootstrap'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import CardBadges from '../components/CardBadges'
 import CardImage from '../components/CardImage'
 import ConfirmModal from '../components/ConfirmModal'
 import ErrorMessage from '../components/ErrorMessage'
 import Loader from '../components/Loader'
+import TransactionModal from '../components/TransactionModal'
 import { api } from '../lib/api'
 import { condition, formatDate, formatEuro, languageLabel } from '../lib/format'
 
@@ -18,6 +19,10 @@ export default function CardDetail() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
+  // Modale "Registra acquisto/vendita"
+  const [showTx, setShowTx] = useState(false)
+  const [txType, setTxType] = useState('BUY')
+  const [notice, setNotice] = useState(null)
 
   const load = useCallback(
     () =>
@@ -47,6 +52,19 @@ export default function CardDetail() {
       setDeleteError(e.message)
       setDeleting(false)
     }
+  }
+
+  const openTx = (type) => {
+    setTxType(type)
+    setShowTx(true)
+  }
+
+  // Dopo un acquisto o una vendita ricarichiamo la carta: le copie le ha aggiornate il backend
+  const handleTxSaved = async (t) => {
+    setShowTx(false)
+    await load()
+    const copies = `${t.quantity} ${t.quantity === 1 ? 'copia' : 'copie'}`
+    setNotice(t.type === 'BUY' ? `Acquisto di ${copies} registrato.` : `Vendita di ${copies} registrata.`)
   }
 
   if (notFound) {
@@ -125,6 +143,21 @@ export default function CardDetail() {
             </Card.Body>
           </Card>
 
+          <div className="d-flex gap-2 mt-3 flex-wrap">
+            <Button className="flex-grow-1" onClick={() => openTx('BUY')}>
+              + Registra acquisto
+            </Button>
+            <Button
+              variant="outline-success"
+              className="flex-grow-1"
+              onClick={() => openTx('SELL')}
+              disabled={card.quantity === 0}
+              title={card.quantity === 0 ? 'Non possiedi copie da vendere' : undefined}
+            >
+              − Registra vendita
+            </Button>
+          </div>
+
           {card.notes && (
             <Card className="mt-3">
               <Card.Body>
@@ -140,6 +173,11 @@ export default function CardDetail() {
 
       <section className="mt-5">
         <h2 className="h4 mb-3">Storico acquisti e vendite</h2>
+        {notice && (
+          <Alert variant="success" dismissible onClose={() => setNotice(null)}>
+            {notice}
+          </Alert>
+        )}
         {transactions.length === 0 ? (
           <p className="text-secondary">Nessuna transazione registrata per questa carta.</p>
         ) : (
@@ -194,13 +232,22 @@ export default function CardDetail() {
           {transactions.length > 0 && (
             <>
               {' '}
-              e le sue <strong>{transactions.length}</strong> {transactions.length === 1 ? 'transazione' : 'transazioni'}
+              e le sue <strong>{transactions.length}</strong>{' '}
+              {transactions.length === 1 ? 'transazione' : 'transazioni'}
             </>
           )}
           . L'operazione non si può annullare.
         </p>
         <ErrorMessage message={deleteError} className="mt-3 mb-0" />
       </ConfirmModal>
+
+      <TransactionModal
+        show={showTx}
+        card={card}
+        defaultType={txType}
+        onHide={() => setShowTx(false)}
+        onSaved={handleTxSaved}
+      />
     </>
   )
 }
