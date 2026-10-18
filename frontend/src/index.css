@@ -237,6 +237,12 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   --bs-table-hover-bg: var(--cv-surface-2);
 }
 
+/* Riquadro del totale nella modale delle transazioni */
+.cv-total-box {
+  background-color: var(--cv-surface-2);
+  border: 1px solid var(--cv-border);
+}
+
 /* Risultati della ricerca esterna: griglia di miniature cliccabili */
 .cv-search-result {
   width: 100%;
