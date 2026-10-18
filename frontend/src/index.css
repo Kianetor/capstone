@@ -25,6 +25,9 @@
   --bs-link-hover-color-rgb: 255, 216, 61;
   --bs-success: var(--cv-success);
   --bs-danger: var(--cv-danger);
+  /* Le classi bg-success / bg-danger usano la versione RGB: stessi colori del tema, leggibili su sfondo scuro */
+  --bs-success-rgb: 62, 207, 142;
+  --bs-danger-rgb: 255, 107, 107;
   --bs-body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
