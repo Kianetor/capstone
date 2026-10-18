@@ -163,6 +163,39 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   border-color: var(--cv-accent);
 }
 
+/* Telefono: tre carte per riga, quindi testo e spazi più compatti */
+@media (max-width: 575.98px) {
+  .cv-card-item {
+    border-radius: 0.75rem;
+  }
+
+  .cv-card-item .card-body {
+    padding: 0.4rem !important;
+  }
+
+  .cv-card-item .cv-card-image {
+    margin-bottom: 0.5rem !important;
+    border-radius: 0.4rem;
+  }
+
+  .cv-card-item h3 {
+    font-size: 0.8rem;
+  }
+
+  .cv-card-item .small {
+    font-size: 0.7rem;
+  }
+
+  .cv-card-item .badge {
+    font-size: 0.6rem;
+    padding: 0.25em 0.4em;
+  }
+
+  .cv-card-item .pt-3 {
+    padding-top: 0.5rem !important;
+  }
+}
+
 /* Landing: ventaglio di tre carte disegnate in CSS */
 .cv-hero-cards {
   position: relative;
