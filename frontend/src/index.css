@@ -201,6 +201,22 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   max-width: 360px;
 }
 
+/* Scorrendo fino a un elemento, lasciamo spazio per la navbar fissa in alto */
+.cv-scroll-anchor {
+  scroll-margin-top: 80px;
+}
+
+/* Anteprima nel form: su telefono più piccola, per non spingere i campi troppo in basso */
+.cv-card-image-form {
+  max-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .cv-card-image-form {
+    max-width: none;
+  }
+}
+
 .cv-details-table {
   --bs-table-bg: transparent;
 }
