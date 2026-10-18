@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
+import Inventory from './pages/Inventory'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
@@ -29,7 +30,7 @@ function App() {
         {/* Pagine riservate: senza login si va a /login */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
-          <Route path="/cards" element={<Placeholder title="Inventario" />} />
+          <Route path="/cards" element={<Inventory />} />
           <Route path="/cards/new" element={<Placeholder title="Aggiungi carta" />} />
           <Route path="/cards/:id" element={<Placeholder title="Dettaglio carta" />} />
           <Route path="/cards/:id/edit" element={<Placeholder title="Modifica carta" />} />
