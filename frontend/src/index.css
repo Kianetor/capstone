@@ -196,6 +196,18 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   }
 }
 
+.pagination {
+  --bs-pagination-bg: var(--cv-surface);
+  --bs-pagination-border-color: var(--cv-border);
+  --bs-pagination-color: var(--cv-text);
+  --bs-pagination-hover-bg: var(--cv-surface-2);
+  --bs-pagination-hover-color: var(--cv-accent);
+  --bs-pagination-active-bg: var(--cv-accent);
+  --bs-pagination-active-border-color: var(--cv-accent);
+  --bs-pagination-active-color: #14181f;
+  --bs-pagination-disabled-bg: var(--cv-surface);
+}
+
 /* Landing: ventaglio di tre carte disegnate in CSS */
 .cv-hero-cards {
   position: relative;
