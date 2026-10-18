@@ -22,6 +22,10 @@ export default function CardDetail() {
   // Modale "Registra acquisto/vendita"
   const [showTx, setShowTx] = useState(false)
   const [txType, setTxType] = useState('BUY')
+  // Transazione da annullare (in attesa di conferma)
+  const [txToUndo, setTxToUndo] = useState(null)
+  const [undoing, setUndoing] = useState(false)
+  const [undoError, setUndoError] = useState(null)
   const [notice, setNotice] = useState(null)
 
   const load = useCallback(
@@ -65,6 +69,21 @@ export default function CardDetail() {
     await load()
     const copies = `${t.quantity} ${t.quantity === 1 ? 'copia' : 'copie'}`
     setNotice(t.type === 'BUY' ? `Acquisto di ${copies} registrato.` : `Vendita di ${copies} registrata.`)
+  }
+
+  const handleUndo = async () => {
+    setUndoing(true)
+    setUndoError(null)
+    try {
+      await api.deleteTransaction(txToUndo.id)
+      setTxToUndo(null)
+      await load()
+      setNotice('Transazione annullata, copie ripristinate.')
+    } catch (e) {
+      setUndoError(e.message)
+    } finally {
+      setUndoing(false)
+    }
   }
 
   if (notFound) {
@@ -192,6 +211,9 @@ export default function CardDetail() {
                   <th className="text-end">Totale</th>
                   <th>Piattaforma</th>
                   <th>Controparte</th>
+                  <th>
+                    <span className="visually-hidden">Azioni</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -208,6 +230,18 @@ export default function CardDetail() {
                     <td className="text-end text-nowrap fw-semibold">{formatEuro(t.total)}</td>
                     <td>{t.platform ?? '—'}</td>
                     <td>{t.counterparty ?? '—'}</td>
+                    <td className="text-end">
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-danger p-0"
+                        onClick={() => setTxToUndo(t)}
+                        aria-label="Annulla transazione"
+                        title="Annulla transazione"
+                      >
+                        Annulla
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -248,6 +282,28 @@ export default function CardDetail() {
         onHide={() => setShowTx(false)}
         onSaved={handleTxSaved}
       />
+
+      <ConfirmModal
+        show={txToUndo !== null}
+        title="Annullare la transazione?"
+        confirmLabel="Annulla transazione"
+        loading={undoing}
+        onConfirm={handleUndo}
+        onCancel={() => {
+          setTxToUndo(null)
+          setUndoError(null)
+        }}
+      >
+        {txToUndo && (
+          <p className="mb-0">
+            {txToUndo.type === 'BUY' ? "L'acquisto" : 'La vendita'} di <strong>{txToUndo.quantity}</strong>{' '}
+            {txToUndo.quantity === 1 ? 'copia' : 'copie'} del {formatDate(txToUndo.date)} verrà{' '}
+            {txToUndo.type === 'BUY' ? 'eliminato' : 'eliminata'} e le copie possedute{' '}
+            {txToUndo.type === 'BUY' ? 'diminuiranno' : 'aumenteranno'} di {txToUndo.quantity}.
+          </p>
+        )}
+        <ErrorMessage message={undoError} className="mt-3 mb-0" />
+      </ConfirmModal>
     </>
   )
 }
