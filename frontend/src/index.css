@@ -196,6 +196,31 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   }
 }
 
+/* Dettaglio carta: immagine grande e tabella dei dati */
+.cv-card-image-lg {
+  max-width: 360px;
+}
+
+.cv-details-table {
+  --bs-table-bg: transparent;
+}
+
+.cv-details-table th,
+.cv-details-table td {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--cv-border);
+}
+
+.cv-details-table tr:last-child th,
+.cv-details-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-hover-bg: var(--cv-surface-2);
+}
+
 .pagination {
   --bs-pagination-bg: var(--cv-surface);
   --bs-pagination-border-color: var(--cv-border);
