@@ -102,6 +102,6 @@ export const api = {
   stats: () => request('/api/dashboard/stats'),
 
   // API esterna di carte
-  searchExternal: (q, lang) => request(`/api/external/cards/search${query({ q, lang })}`),
+  searchExternal: (q, lang, page = 1) => request(`/api/external/cards/search${query({ q, lang, page })}`),
   externalCard: (externalId, lang) => request(`/api/external/cards/${id(externalId)}${query({ lang })}`),
 }
