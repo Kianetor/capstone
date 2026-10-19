@@ -24,6 +24,9 @@ export const CONDITIONS = [
 
 export const GRADING_COMPANIES = ['PSA', 'BGS', 'CGC', 'SGC', 'ACE', 'Altro']
 
+// Suggerimenti per il campo piattaforma di acquisti e vendite: si può comunque scrivere quello che si vuole
+export const PLATFORMS = ['Cardmarket', 'eBay', 'Vinted', 'Fiera', 'Negozio', 'Privato']
+
 export const SORT_OPTIONS = [
   { value: 'createdAt,desc', label: 'Più recenti' },
   { value: 'name,asc', label: 'Nome (A-Z)' },
@@ -34,7 +37,8 @@ export const SORT_OPTIONS = [
 ]
 
 export const languageLabel = (value) => LANGUAGES.find((l) => l.value === value)?.label ?? value
-export const condition = (value) => CONDITIONS.find((c) => c.value === value) ?? { label: value, short: value, variant: 'secondary' }
+export const condition = (value) =>
+  CONDITIONS.find((c) => c.value === value) ?? { label: value, short: value, variant: 'secondary' }
 export const tcgdexLanguage = (value) => LANGUAGES.find((l) => l.value === value)?.tcgdex ?? 'en'
 
 const euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })

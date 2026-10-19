@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { Alert, Button, ButtonGroup, Col, Form, InputGroup, Modal, Row, Spinner, ToggleButton } from 'react-bootstrap'
 import { api } from '../lib/api'
-import { formatEuro, todayIso } from '../lib/format'
-
-// Suggerimenti per il campo piattaforma: si può comunque scrivere quello che si vuole
-const PLATFORMS = ['Cardmarket', 'eBay', 'Vinted', 'Fiera', 'Negozio', 'Privato']
+import { PLATFORMS, formatEuro, todayIso } from '../lib/format'
 
 const emptyForm = (type, card) => ({
   type,
