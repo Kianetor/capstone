@@ -301,6 +301,48 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   --bs-pagination-disabled-bg: var(--cv-surface);
 }
 
+/* Dashboard: un solo numero grande (valore della collezione) e riquadri più piccoli */
+.cv-hero-stat {
+  border-left: 4px solid var(--cv-accent);
+}
+
+.cv-hero-value {
+  font-size: clamp(2.5rem, 7vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.cv-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Colore della riga di dettaglio di margine e bilancio (sempre insieme a segno, freccia e parola) */
+.cv-tone-positive {
+  color: var(--cv-success);
+}
+
+.cv-tone-negative {
+  color: var(--cv-danger);
+}
+
+.list-group {
+  --bs-list-group-bg: transparent;
+  --bs-list-group-border-color: var(--cv-border);
+}
+
+/* Miniatura della carta nelle liste */
+.cv-thumb {
+  width: 40px;
+  border-radius: 0.3rem;
+}
+
+.cv-rank {
+  width: 1rem;
+  text-align: center;
+}
+
 /* Landing: ventaglio di tre carte disegnate in CSS */
 .cv-hero-cards {
   position: relative;
