@@ -16,6 +16,7 @@ export default function Inventory() {
   const navigate = useNavigate()
   // Nome della carta appena aggiunta (arriva dal form): mostriamo la conferma una volta sola
   const [added, setAdded] = useState(location.state?.added ?? null)
+  const [purchased] = useState(Boolean(location.state?.purchased))
 
   // Togliamo il messaggio dalla cronologia: ricaricando la pagina o tornando indietro non ricompare
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function Inventory() {
           <h1 className="h2 mb-0">Inventario</h1>
           <span className="text-secondary small">
             {totalElements} {totalElements === 1 ? 'carta' : 'carte'}
-            {filtered && ' trovate'}
+            {filtered && (totalElements === 1 ? ' trovata' : ' trovate')}
           </span>
         </div>
         <Button as={Link} to="/cards/new">
@@ -51,7 +52,7 @@ export default function Inventory() {
 
       {added && (
         <Alert variant="success" dismissible onClose={() => setAdded(null)}>
-          <strong>{added}</strong> aggiunta all'inventario.
+          <strong>{added}</strong> aggiunta all'inventario{purchased && ' e acquisto registrato'}.
         </Alert>
       )}
 

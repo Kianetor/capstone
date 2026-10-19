@@ -7,7 +7,15 @@ import ErrorMessage from '../components/ErrorMessage'
 import ExternalSearch from '../components/ExternalSearch'
 import Loader from '../components/Loader'
 import { api } from '../lib/api'
-import { CONDITIONS, GRADING_COMPANIES, LANGUAGES, formatEuro, tcgdexLanguage } from '../lib/format'
+import {
+  CONDITIONS,
+  GRADING_COMPANIES,
+  LANGUAGES,
+  PLATFORMS,
+  formatEuro,
+  tcgdexLanguage,
+  todayIso,
+} from '../lib/format'
 import { setPage } from '../store/cardsSlice'
 
 const EMPTY_FORM = {
@@ -24,7 +32,15 @@ const EMPTY_FORM = {
   imageUrl: '',
   externalId: '',
   notes: '',
+  // Solo in aggiunta: l'acquisto delle copie viene registrato insieme alla carta
+  buyEnabled: true,
+  buyPrice: '',
+  buyDate: todayIso(),
+  buyPlatform: '',
 }
+
+// Errori del backend sull'acquisto (purchase.*) -> campi del form
+const PURCHASE_ERRORS = { 'purchase.unitPrice': 'buyPrice', 'purchase.date': 'buyDate', purchaseValid: 'quantity' }
 
 // Dalla carta del backend ai valori del form (i campi input vogliono stringhe, non null)
 function toForm(card) {
@@ -37,7 +53,7 @@ function toForm(card) {
 }
 
 // Dal form al corpo della richiesta: stringhe vuote -> null, numeri come numeri
-function toPayload(form) {
+function toPayload(form, editing) {
   const text = (v) => (v.trim() === '' ? null : v.trim())
   return {
     name: form.name.trim(),
@@ -53,11 +69,15 @@ function toPayload(form) {
     imageUrl: text(form.imageUrl),
     externalId: text(form.externalId),
     notes: text(form.notes),
+    purchase:
+      !editing && form.buyEnabled
+        ? { unitPrice: Number(form.buyPrice), date: form.buyDate, platform: text(form.buyPlatform) }
+        : null,
   }
 }
 
 // Stesse regole del backend (CardRequest)
-function validate(form) {
+function validate(form, editing) {
   const errors = {}
   if (!form.name.trim()) errors.name = 'Il nome è obbligatorio'
   const quantity = Number(form.quantity)
@@ -70,6 +90,13 @@ function validate(form) {
   }
   if (form.imageUrl.trim() && !/^https:\/\/\S+$/.test(form.imageUrl.trim()))
     errors.imageUrl = 'Deve essere un indirizzo https'
+  if (!editing && form.buyEnabled) {
+    if (!errors.quantity && quantity < 1) errors.quantity = "Almeno una copia per registrare l'acquisto"
+    if (form.buyPrice === '' || !(Number(form.buyPrice) >= 0))
+      errors.buyPrice = 'Inserisci il prezzo pagato (0 se regalata)'
+    if (!form.buyDate) errors.buyDate = 'Inserisci la data'
+    else if (form.buyDate > todayIso()) errors.buyDate = 'La data non può essere nel futuro'
+  }
   return errors
 }
 
@@ -136,23 +163,27 @@ export default function CardForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const found = validate(form)
+    const found = validate(form, editing)
     setErrors(found)
     if (Object.keys(found).length > 0) return
     setSaving(true)
     setSaveError(null)
     try {
-      const payload = toPayload(form)
+      const payload = toPayload(form, editing)
       const saved = editing ? await api.updateCard(id, payload) : await api.createCard(payload)
       if (editing) {
         navigate(`/cards/${saved.id}`)
       } else {
         // Carta nuova: torniamo alla prima pagina dell'inventario, dove compare per prima, con un messaggio di conferma
         dispatch(setPage(0))
-        navigate('/cards', { state: { added: saved.name } })
+        navigate('/cards', { state: { added: saved.name, purchased: form.buyEnabled } })
       }
     } catch (err) {
-      if (err.errors) setErrors(err.errors)
+      if (err.errors) {
+        const mapped = {}
+        Object.entries(err.errors).forEach(([key, message]) => (mapped[PURCHASE_ERRORS[key] ?? key] = message))
+        setErrors(mapped)
+      }
       setSaveError(err.message)
       setSaving(false)
     }
@@ -359,6 +390,88 @@ export default function CardForm() {
                           </InputGroup>
                         </Form.Group>
                       </Col>
+
+                      {!editing && (
+                        <Col xs={12}>
+                          <div className="cv-purchase-box p-3 rounded">
+                            <Form.Check
+                              type="switch"
+                              id="buyEnabled"
+                              name="buyEnabled"
+                              label="Registra anche come acquisto"
+                              checked={form.buyEnabled}
+                              onChange={handleChange}
+                            />
+                            <div className="small text-secondary mt-1">
+                              {form.buyEnabled
+                                ? "L'acquisto delle copie finisce nello storico e nella spesa della dashboard."
+                                : "Viene salvata solo la carta, senza spesa. Puoi registrare l'acquisto più tardi dal dettaglio."}
+                            </div>
+                            {form.buyEnabled && (
+                              <Row className="g-3 mt-1">
+                                <Col sm={4}>
+                                  <Form.Group controlId="buyPrice">
+                                    <Form.Label>Prezzo pagato per copia *</Form.Label>
+                                    <InputGroup hasValidation>
+                                      <InputGroup.Text>€</InputGroup.Text>
+                                      <Form.Control
+                                        type="number"
+                                        name="buyPrice"
+                                        min="0"
+                                        step="0.01"
+                                        value={form.buyPrice}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.buyPrice}
+                                      />
+                                      <Form.Control.Feedback type="invalid">{errors.buyPrice}</Form.Control.Feedback>
+                                    </InputGroup>
+                                  </Form.Group>
+                                </Col>
+                                <Col xs={6} sm={4}>
+                                  <Form.Group controlId="buyDate">
+                                    <Form.Label>Data acquisto *</Form.Label>
+                                    <Form.Control
+                                      type="date"
+                                      name="buyDate"
+                                      max={todayIso()}
+                                      value={form.buyDate}
+                                      onChange={handleChange}
+                                      isInvalid={!!errors.buyDate}
+                                    />
+                                    <Form.Control.Feedback type="invalid">{errors.buyDate}</Form.Control.Feedback>
+                                  </Form.Group>
+                                </Col>
+                                <Col xs={6} sm={4}>
+                                  <Form.Group controlId="buyPlatform">
+                                    <Form.Label>Piattaforma</Form.Label>
+                                    <Form.Control
+                                      list="buy-platforms"
+                                      name="buyPlatform"
+                                      placeholder="es. Cardmarket"
+                                      value={form.buyPlatform}
+                                      onChange={handleChange}
+                                      maxLength={50}
+                                    />
+                                    <datalist id="buy-platforms">
+                                      {PLATFORMS.map((p) => (
+                                        <option key={p} value={p} />
+                                      ))}
+                                    </datalist>
+                                  </Form.Group>
+                                </Col>
+                                {form.buyPrice !== '' && Number(form.quantity) > 0 && (
+                                  <Col xs={12} className="small text-secondary">
+                                    Spesa registrata: {form.quantity} × {formatEuro(form.buyPrice)} ={' '}
+                                    <strong className="text-accent">
+                                      {formatEuro(Number(form.quantity) * Number(form.buyPrice))}
+                                    </strong>
+                                  </Col>
+                                )}
+                              </Row>
+                            )}
+                          </div>
+                        </Col>
+                      )}
 
                       <Col xs={12}>
                         <Form.Group controlId="imageUrl">
