@@ -5,11 +5,11 @@ import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import CardDetail from './pages/CardDetail'
 import CardForm from './pages/CardForm'
+import Dashboard from './pages/Dashboard'
 import Inventory from './pages/Inventory'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
-import Placeholder from './pages/Placeholder'
 import Register from './pages/Register'
 import Transactions from './pages/Transactions'
 import { loadUser } from './store/authSlice'
@@ -32,7 +32,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         {/* Pagine riservate: senza login si va a /login */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/cards" element={<Inventory />} />
           <Route path="/cards/new" element={<CardForm />} />
           <Route path="/cards/:id" element={<CardDetail />} />
