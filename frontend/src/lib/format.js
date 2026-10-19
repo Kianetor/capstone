@@ -41,7 +41,8 @@ export const condition = (value) =>
   CONDITIONS.find((c) => c.value === value) ?? { label: value, short: value, variant: 'secondary' }
 export const tcgdexLanguage = (value) => LANGUAGES.find((l) => l.value === value)?.tcgdex ?? 'en'
 
-const euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
+// useGrouping 'always': il punto delle migliaia anche sotto 10.000 (1.815,50 €), più leggibile per i prezzi
+const euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', useGrouping: 'always' })
 
 export function formatEuro(value) {
   if (value === null || value === undefined || value === '') return '—'
