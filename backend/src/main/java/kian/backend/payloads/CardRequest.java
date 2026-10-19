@@ -1,12 +1,14 @@
 package kian.backend.payloads;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import kian.backend.entities.CardCondition;
 import kian.backend.entities.Language;
 
 import java.math.BigDecimal;
 
-// Creazione e modifica di una carta
+// Creazione e modifica di una carta.
+// purchase è facoltativo e vale solo alla creazione: registra l'acquisto delle copie insieme alla carta
 public record CardRequest(
         @NotBlank @Size(max = 100) String name,
         @Size(max = 100) String setName,
@@ -22,7 +24,8 @@ public record CardRequest(
         @Pattern(regexp = "^https://[^\\s\"'<>]+$", message = "deve essere un indirizzo https")
         String imageUrl,
         @Size(max = 50) String externalId,
-        @Size(max = 2000) String notes
+        @Size(max = 2000) String notes,
+        @Valid PurchaseRequest purchase
 ) {
     // Una carta gradata deve avere compagnia e voto
     @AssertTrue(message = "per una carta gradata servono compagnia e voto")
@@ -31,5 +34,11 @@ public record CardRequest(
             return true;
         }
         return gradingCompany != null && !gradingCompany.isBlank() && grade != null;
+    }
+
+    // Un acquisto di zero copie non ha senso
+    @AssertTrue(message = "per registrare l'acquisto serve almeno una copia")
+    public boolean isPurchaseValid() {
+        return purchase == null || quantity == null || quantity > 0;
     }
 }

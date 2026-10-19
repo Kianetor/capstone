@@ -1,6 +1,8 @@
 package kian.backend.services;
 
 import kian.backend.entities.Card;
+import kian.backend.entities.Transaction;
+import kian.backend.entities.TransactionType;
 import kian.backend.exceptions.NotFoundException;
 import kian.backend.payloads.*;
 import kian.backend.repositories.CardRepository;
@@ -63,6 +65,20 @@ public class CardService {
         apply(card, r);
         cardRepository.save(card);
         log.info("Creata carta={} utente={}", card.getId(), userId);
+
+        // Carta e acquisto nella stessa transazione del database: o si salvano entrambi o nessuno dei due.
+        // Le copie della carta sono già quelle acquistate, quindi qui non si sommano di nuovo
+        if (r.purchase() != null) {
+            Transaction purchase = new Transaction();
+            purchase.setCard(card);
+            purchase.setType(TransactionType.BUY);
+            purchase.setQuantity(r.quantity());
+            purchase.setUnitPrice(r.purchase().unitPrice());
+            purchase.setDate(r.purchase().date());
+            purchase.setPlatform(blankToNull(r.purchase().platform()));
+            transactionRepository.save(purchase);
+            log.info("Registrato acquisto iniziale carta={}", card.getId());
+        }
         return CardResponse.of(card);
     }
 
