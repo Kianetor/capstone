@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Badge, Button, Card, Col, Row, Table } from 'react-bootstrap'
+import { Alert, Button, Card, Col, Row, Table } from 'react-bootstrap'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import CardBadges from '../components/CardBadges'
 import CardImage from '../components/CardImage'
@@ -7,6 +7,7 @@ import ConfirmModal from '../components/ConfirmModal'
 import ErrorMessage from '../components/ErrorMessage'
 import Loader from '../components/Loader'
 import TransactionModal from '../components/TransactionModal'
+import TransactionTypeBadge from '../components/TransactionTypeBadge'
 import { api } from '../lib/api'
 import { condition, formatDate, formatEuro, languageLabel } from '../lib/format'
 
@@ -221,9 +222,7 @@ export default function CardDetail() {
                   <tr key={t.id}>
                     <td className="text-nowrap">{formatDate(t.date)}</td>
                     <td>
-                      <Badge bg={t.type === 'BUY' ? 'info' : 'success'} className="text-dark">
-                        {t.type === 'BUY' ? 'Acquisto' : 'Vendita'}
-                      </Badge>
+                      <TransactionTypeBadge type={t.type} />
                     </td>
                     <td className="text-end">{t.quantity}</td>
                     <td className="text-end text-nowrap">{formatEuro(t.unitPrice)}</td>

@@ -240,6 +240,17 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   --bs-table-hover-bg: var(--cv-surface-2);
 }
 
+/* Permette a text-truncate di funzionare dentro un contenitore flex */
+.min-w-0 {
+  min-width: 0;
+}
+
+/* Sezione "Registra anche come acquisto" nel form di una carta nuova */
+.cv-purchase-box {
+  background-color: var(--cv-surface-2);
+  border: 1px solid var(--cv-border);
+}
+
 /* Riquadro del totale nella modale delle transazioni */
 .cv-total-box {
   background-color: var(--cv-surface-2);

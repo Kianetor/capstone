@@ -11,6 +11,7 @@ import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Placeholder from './pages/Placeholder'
 import Register from './pages/Register'
+import Transactions from './pages/Transactions'
 import { loadUser } from './store/authSlice'
 
 function App() {
@@ -36,7 +37,7 @@ function App() {
           <Route path="/cards/new" element={<CardForm />} />
           <Route path="/cards/:id" element={<CardDetail />} />
           <Route path="/cards/:id/edit" element={<CardForm />} />
-          <Route path="/transactions" element={<Placeholder title="Transazioni" />} />
+          <Route path="/transactions" element={<Transactions />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Route>
