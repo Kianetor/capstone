@@ -22,6 +22,8 @@ final class CardSpecifications {
         return (root, query, cb) -> {
             List<Predicate> filters = new ArrayList<>();
             filters.add(cb.equal(root.get("user").get("id"), userId));
+            // Le carte vendute del tutto restano nel database per lo storico, ma l'inventario mostra ciò che si possiede
+            if (!Boolean.TRUE.equals(p.includeSold())) filters.add(cb.greaterThan(root.get("quantity"), 0));
 
             if (present(p.q())) {
                 filters.add(cb.or(

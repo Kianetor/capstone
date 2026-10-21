@@ -26,7 +26,7 @@ public class DashboardService {
         BigDecimal revenue = money(transactionRepository.sumTotalByUserIdAndType(userId, TransactionType.SELL));
 
         return new DashboardStatsResponse(
-                cardRepository.countByUserId(userId),
+                cardRepository.countByUserIdAndQuantityGreaterThan(userId, 0),
                 cardRepository.sumQuantityByUserId(userId),
                 inventoryValue,
                 spent,

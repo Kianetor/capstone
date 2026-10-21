@@ -10,6 +10,7 @@ public record CardSearchParams(
         String setName,
         Language language,
         CardCondition condition,
-        Boolean graded
+        Boolean graded,
+        Boolean includeSold       // true = anche le carte con 0 copie (tutte vendute); di default sono escluse
 ) {
 }
