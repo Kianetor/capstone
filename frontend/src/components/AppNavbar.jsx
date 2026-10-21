@@ -38,6 +38,9 @@ export default function AppNavbar() {
                 <Nav.Link as={NavLink} to="/transactions" eventKey="transactions">
                   Transazioni
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/explore" eventKey="explore">
+                  Esplora
+                </Nav.Link>
               </Nav>
               <Nav>
                 <NavDropdown title={user.username} align="end" id="user-menu">
@@ -48,14 +51,26 @@ export default function AppNavbar() {
               </Nav>
             </>
           ) : (
-            <Nav className="ms-auto align-items-md-center gap-md-2">
-              <Nav.Link as={NavLink} to="/login" eventKey="login">
-                Accedi
-              </Nav.Link>
-              <Button as={Link} to="/register" size="sm" className="px-3 my-2 my-md-0 align-self-start align-self-md-center">
-                Registrati
-              </Button>
-            </Nav>
+            <>
+              <Nav className="me-auto">
+                <Nav.Link as={NavLink} to="/explore" eventKey="explore">
+                  Esplora
+                </Nav.Link>
+              </Nav>
+              <Nav className="align-items-md-center gap-md-2">
+                <Nav.Link as={NavLink} to="/login" eventKey="login">
+                  Accedi
+                </Nav.Link>
+                <Button
+                  as={Link}
+                  to="/register"
+                  size="sm"
+                  className="px-3 my-2 my-md-0 align-self-start align-self-md-center"
+                >
+                  Registrati
+                </Button>
+              </Nav>
+            </>
           )}
         </Navbar.Collapse>
       </Container>

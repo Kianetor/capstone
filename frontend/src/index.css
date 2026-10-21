@@ -343,6 +343,89 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   text-align: center;
 }
 
+/* Catalogo: riquadri dei set con il logo */
+.cv-set-tile {
+  display: block;
+  height: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--cv-border);
+  border-radius: 0.75rem;
+  background-color: var(--cv-surface);
+  color: inherit;
+  text-align: center;
+  text-decoration: none;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.cv-set-tile:hover,
+.cv-set-tile:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--cv-accent);
+  color: inherit;
+}
+
+/* Logo su sfondo chiaro: molti loghi hanno scritte scure che sul tema scuro non si leggerebbero */
+.cv-set-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: radial-gradient(circle at 50% 40%, #ffffff, #e6e9f0);
+}
+
+.cv-set-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.cv-set-logo span {
+  color: #14181f;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.cv-set-logo-lg {
+  width: 260px;
+  height: 120px;
+}
+
+/* Serie del catalogo: pulsanti in una riga che scorre in orizzontale */
+.cv-series-strip {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.cv-series-pill {
+  flex-shrink: 0;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--cv-border);
+  border-radius: 999px;
+  background-color: var(--cv-surface);
+  color: var(--cv-text);
+  white-space: nowrap;
+}
+
+.cv-series-pill:hover {
+  border-color: var(--cv-accent);
+}
+
+.cv-series-pill.active {
+  background-color: var(--cv-accent);
+  border-color: var(--cv-accent);
+  color: #14181f;
+  font-weight: 600;
+}
+
+.cv-landing-search {
+  border-color: var(--cv-accent);
+}
+
 /* Landing: ventaglio di tre carte disegnate in CSS */
 .cv-hero-cards {
   position: relative;

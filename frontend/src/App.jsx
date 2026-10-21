@@ -6,6 +6,9 @@ import ProtectedRoute from './components/ProtectedRoute'
 import CardDetail from './pages/CardDetail'
 import CardForm from './pages/CardForm'
 import Dashboard from './pages/Dashboard'
+import Explore from './pages/Explore'
+import ExploreCard from './pages/ExploreCard'
+import ExploreSet from './pages/ExploreSet'
 import Inventory from './pages/Inventory'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
@@ -30,6 +33,10 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        {/* Catalogo carte: aperto anche a chi non ha un account */}
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/explore/sets/:id" element={<ExploreSet />} />
+        <Route path="/explore/cards/:id" element={<ExploreCard />} />
         {/* Pagine riservate: senza login si va a /login */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
