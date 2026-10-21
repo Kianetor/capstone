@@ -10,6 +10,6 @@ public record ExternalCardDetail(
         String cardNumber,      // es. 4/102
         String rarity,
         String imageUrl,        // null se l'API non ha l'immagine
-        BigDecimal marketPrice  // prezzo di tendenza su Cardmarket in euro, null se non disponibile
+        BigDecimal marketPrice  // prezzo medio a 30 giorni su Cardmarket in euro, null se non disponibile
 ) {
 }

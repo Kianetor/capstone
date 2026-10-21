@@ -7,6 +7,10 @@ import kian.backend.exceptions.NotFoundException;
 import kian.backend.payloads.ExternalCardDetail;
 import kian.backend.payloads.ExternalCardSummary;
 import kian.backend.payloads.ExternalSearchResponse;
+import kian.backend.payloads.ExternalSeriesDetail;
+import kian.backend.payloads.ExternalSeriesSummary;
+import kian.backend.payloads.ExternalSetDetail;
+import kian.backend.payloads.ExternalSetSummary;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -18,7 +22,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 // Ricerca carte su TCGdex (api.tcgdex.net): gratuita e senza chiave.
@@ -47,9 +54,11 @@ public class ExternalCardService {
     // Nome seguito dal solo numero nel set, es. "pikachu 25"
     private static final Pattern NAME_AND_NUMBER = Pattern.compile("^(.*\\S)\\s+#?(\\d{1,4})$");
 
-    // L'elenco dei set cambia di rado: lo teniamo in memoria per non chiederlo a ogni ricerca
-    private static final Duration SETS_CACHE_DURATION = Duration.ofHours(12);
-    private final Map<String, CachedSets> setsCache = new ConcurrentHashMap<>();
+    // Serie, set e loro contenuto cambiano di rado: li teniamo in memoria per 12 ore invece di chiederli ogni volta
+    private static final Duration CACHE_DURATION = Duration.ofHours(12);
+    private final Map<String, Cached> cache = new ConcurrentHashMap<>();
+    // "Pokémon TCG Pocket" è un gioco digitale: non ha carte fisiche da collezionare
+    private static final Set<String> EXCLUDED_SERIES = Set.of("tcgp");
     private static final String UNAVAILABLE = "Ricerca carte non disponibile al momento, inserisci i dati a mano";
 
     private final RestClient restClient;
@@ -80,7 +89,8 @@ public class ExternalCardService {
         try {
             // 1. Id di TCGdex (base1-4): se esiste è la carta cercata, altrimenti era un nome col trattino (ho-oh)
             if (pageNumber == 1 && TCGDEX_ID.matcher(q).matches() && q.chars().anyMatch(Character::isDigit)) {
-                Optional<TcgdexCard> card = fetch(TcgdexCard.class, "/{lang}/cards/{id}", language, q);
+                Optional<TcgdexCard> card = fetch(TcgdexCard.class, "/{lang}/cards/{id}", language, q)
+                        .filter(c -> isPhysical(language, c.id()));
                 if (card.isPresent()) {
                     return new ExternalSearchResponse(List.of(summary(card.get())), false);
                 }
@@ -100,16 +110,19 @@ public class ExternalCardService {
             if (nameAndNumber.matches()) {
                 String number = withoutLeadingZeros(nameAndNumber.group(2));
                 List<ExternalCardSummary> found = byName(language, nameAndNumber.group(1), 1, 250).stream()
+                        .filter(c -> isPhysical(language, c.id()))
                         .filter(c -> number.equals(withoutLeadingZeros(c.localId())))
                         .map(ExternalCardService::summary)
                         .toList();
                 return new ExternalSearchResponse(found, false);
             }
 
-            // 4. Solo nome, a pagine
+            // 4. Solo nome, a pagine. hasMore guarda la pagina intera di TCGdex, prima di togliere le carte Pocket
             List<TcgdexCardBrief> found = byName(language, q, pageNumber, MAX_RESULTS);
-            return new ExternalSearchResponse(found.stream().map(ExternalCardService::summary).toList(),
-                    found.size() == MAX_RESULTS);
+            return new ExternalSearchResponse(found.stream()
+                    .filter(c -> isPhysical(language, c.id()))
+                    .map(ExternalCardService::summary)
+                    .toList(), found.size() == MAX_RESULTS);
         } catch (RestClientException e) {
             throw new ExternalServiceException(UNAVAILABLE, e);
         }
@@ -131,6 +144,9 @@ public class ExternalCardService {
     private List<ExternalCardSummary> byPrintedNumber(String language, String number, int setSize, String name) {
         List<ExternalCardSummary> found = new ArrayList<>();
         for (TcgdexSet set : sets(language)) {
+            if (excludedSetIds(language).contains(set.id())) {
+                continue;
+            }
             if (set.cardCount() == null || set.cardCount().official() == null || set.cardCount().official() != setSize) {
                 continue;
             }
@@ -147,13 +163,142 @@ public class ExternalCardService {
     }
 
     private List<TcgdexSet> sets(String language) {
-        CachedSets cached = setsCache.get(language);
-        if (cached == null || cached.fetchedAt().plus(SETS_CACHE_DURATION).isBefore(Instant.now())) {
+        return cached("sets:" + language, () -> {
             TcgdexSet[] sets = restClient.get().uri("/{lang}/sets", language).retrieve().body(TcgdexSet[].class);
-            cached = new CachedSets(Instant.now(), sets == null ? List.of() : List.of(sets));
-            setsCache.put(language, cached);
+            return sets == null ? List.<TcgdexSet>of() : List.of(sets);
+        });
+    }
+
+    // Id dei set delle serie escluse (Pokémon TCG Pocket): le loro carte esistono solo nel gioco digitale
+    private Set<String> excludedSetIds(String language) {
+        return cached("excluded:" + language, () -> {
+            Set<String> ids = new HashSet<>();
+            for (String serieId : EXCLUDED_SERIES) {
+                fetch(TcgdexSerie.class, "/{lang}/series/{id}", language, serieId)
+                        .map(TcgdexSerie::sets)
+                        .ifPresent(sets -> sets.forEach(set -> ids.add(set.id())));
+            }
+            return Set.copyOf(ids);
+        });
+    }
+
+    // Una carta è fisica se il suo set (la parte dell'id prima dell'ultimo trattino) non è di una serie esclusa
+    private boolean isPhysical(String language, String cardId) {
+        int dash = cardId.lastIndexOf('-');
+        return dash < 0 || !excludedSetIds(language).contains(cardId.substring(0, dash));
+    }
+
+    // ---- Catalogo pubblico: serie, set e loro carte ----
+
+    // Tutte le serie, dalla più recente
+    public List<ExternalSeriesSummary> series(String lang) {
+        String language = checkLanguage(lang);
+        return external(() -> cached("series:" + language, () -> {
+            TcgdexSerieBrief[] series = restClient.get().uri("/{lang}/series", language).retrieve()
+                    .body(TcgdexSerieBrief[].class);
+            List<ExternalSeriesSummary> result = new ArrayList<>();
+            for (TcgdexSerieBrief s : series == null ? new TcgdexSerieBrief[0] : series) {
+                if (!EXCLUDED_SERIES.contains(s.id())) {
+                    result.add(new ExternalSeriesSummary(s.id(), s.name(), logo(s.logo())));
+                }
+            }
+            return result.reversed();
+        }));
+    }
+
+    // Una serie con i suoi set, dal più recente
+    public ExternalSeriesDetail seriesDetail(String seriesId, String lang) {
+        String id = checkId(seriesId, "Id serie non valido");
+        String language = checkLanguage(lang);
+        return external(() -> cached("serie:" + language + ":" + id, () -> {
+            TcgdexSerie serie = fetch(TcgdexSerie.class, "/{lang}/series/{id}", language, id)
+                    .orElseThrow(() -> new NotFoundException("Serie non trovata"));
+            List<ExternalSetSummary> sets = (serie.sets() == null ? List.<TcgdexSet>of() : serie.sets()).stream()
+                    .map(ExternalCardService::setSummary)
+                    .toList()
+                    .reversed();
+            return new ExternalSeriesDetail(serie.id(), serie.name(), logo(serie.logo()), date(serie.releaseDate()), sets);
+        }));
+    }
+
+    // Un set con tutte le sue carte, in ordine di numero
+    public ExternalSetDetail setDetail(String setId, String lang) {
+        String id = checkId(setId, "Id set non valido");
+        String language = checkLanguage(lang);
+        return external(() -> cached("set:" + language + ":" + id, () -> {
+            TcgdexSetFull set = fetch(TcgdexSetFull.class, "/{lang}/sets/{id}", language, id)
+                    .orElseThrow(() -> new NotFoundException("Set non trovato"));
+            TcgdexCardCount count = set.cardCount();
+            return new ExternalSetDetail(set.id(), set.name(), logo(set.logo()), date(set.releaseDate()),
+                    set.serie() != null ? set.serie().id() : null, set.serie() != null ? set.serie().name() : null,
+                    count != null ? count.official() : null, count != null ? count.total() : null,
+                    (set.cards() == null ? List.<TcgdexCardBrief>of() : set.cards()).stream()
+                            .map(ExternalCardService::summary)
+                            .toList());
+        }));
+    }
+
+    // Gli ultimi set usciti con un logo, scorrendo le serie dalla più recente: per la vetrina della landing page
+    public List<ExternalSetSummary> latestSets(String lang, Integer limit) {
+        int max = limit == null ? 12 : limit;
+        if (max < 1 || max > 30) {
+            throw new BadRequestException("Il limite deve essere tra 1 e 30");
         }
-        return cached.sets();
+        List<ExternalSetSummary> result = new ArrayList<>();
+        for (ExternalSeriesSummary serie : series(lang)) {
+            for (ExternalSetSummary set : seriesDetail(serie.id(), lang).sets()) {
+                if (result.size() == max) {
+                    return result;
+                }
+                if (set.logoUrl() != null) {
+                    result.add(set);
+                }
+            }
+        }
+        return result;
+    }
+
+    // Valore in memoria se ha meno di 12 ore, altrimenti lo ricarica con loader
+    @SuppressWarnings("unchecked")
+    private <T> T cached(String key, Supplier<T> loader) {
+        Cached hit = cache.get(key);
+        if (hit != null && hit.storedAt().plus(CACHE_DURATION).isAfter(Instant.now())) {
+            return (T) hit.value();
+        }
+        T value = loader.get();
+        cache.put(key, new Cached(Instant.now(), value));
+        return value;
+    }
+
+    // Errori di rete o di TCGdex -> 503 con il messaggio per l'utente
+    private static <T> T external(Supplier<T> call) {
+        try {
+            return call.get();
+        } catch (RestClientException e) {
+            throw new ExternalServiceException("Catalogo carte non disponibile al momento, riprova tra poco", e);
+        }
+    }
+
+    private static String checkId(String id, String message) {
+        if (id == null || !EXTERNAL_ID.matcher(id).matches()) {
+            throw new BadRequestException(message);
+        }
+        return id;
+    }
+
+    private static ExternalSetSummary setSummary(TcgdexSet s) {
+        TcgdexCardCount count = s.cardCount();
+        return new ExternalSetSummary(s.id(), s.name(), logo(s.logo()),
+                count != null ? count.official() : null, count != null ? count.total() : null);
+    }
+
+    // Come per le immagini delle carte, TCGdex dà l'indirizzo del logo senza estensione
+    private static String logo(String base) {
+        return base == null ? null : base + ".webp";
+    }
+
+    private static LocalDate date(String value) {
+        return value == null || value.isBlank() ? null : LocalDate.parse(value.substring(0, 10));
     }
 
     // Una risorsa di TCGdex che potrebbe non esistere: 404 -> vuoto, gli altri errori salgono al chiamante
@@ -199,7 +344,7 @@ public class ExternalCardService {
 
         String setName = card.set() != null ? card.set().name() : null;
         return new ExternalCardDetail(card.id(), card.name(), setName, cardNumber(card), card.rarity(),
-                image(card.image(), "high"), trendPrice(card));
+                image(card.image(), "high"), marketPrice(card));
     }
 
     private static String checkLanguage(String lang) {
@@ -223,13 +368,15 @@ public class ExternalCardService {
         return card.localId();
     }
 
-    // Prezzo di tendenza su Cardmarket; per le carte che esistono solo holo c'è solo "trend-holo"
-    private static BigDecimal trendPrice(TcgdexCard card) {
+    // Prezzo di mercato su Cardmarket. Usiamo la media degli ultimi 30 giorni: il "trend" di TCGdex a volte è
+    // sballato (Charizard Base Set: trend 0,02 € con media a 30 giorni di 682 €). I campi "-holo" non li usiamo:
+    // per le carte moderne sono il prezzo della versione reverse holo, non della carta
+    private static BigDecimal marketPrice(TcgdexCard card) {
         if (card.pricing() == null || card.pricing().cardmarket() == null) {
             return null;
         }
         Map<String, Object> cardmarket = card.pricing().cardmarket();
-        for (String key : List.of("trend", "trend-holo", "avg")) {
+        for (String key : List.of("avg30", "avg7", "trend", "avg")) {
             if (cardmarket.get(key) instanceof Number n && n.doubleValue() > 0) {
                 return BigDecimal.valueOf(n.doubleValue()).setScale(2, RoundingMode.HALF_UP);
             }
@@ -248,14 +395,27 @@ public class ExternalCardService {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record TcgdexSet(String id, String name, TcgdexCardCount cardCount) {
-    }
-
-    private record CachedSets(Instant fetchedAt, List<TcgdexSet> sets) {
+    private record TcgdexSet(String id, String name, String logo, TcgdexCardCount cardCount) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record TcgdexCardCount(Integer official) {
+    private record TcgdexSetFull(String id, String name, String logo, String releaseDate, TcgdexSerieBrief serie,
+                                 TcgdexCardCount cardCount, List<TcgdexCardBrief> cards) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record TcgdexSerieBrief(String id, String name, String logo) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record TcgdexSerie(String id, String name, String logo, String releaseDate, List<TcgdexSet> sets) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record TcgdexCardCount(Integer official, Integer total) {
+    }
+
+    private record Cached(Instant storedAt, Object value) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
