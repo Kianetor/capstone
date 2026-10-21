@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, Card, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import CardImage from '../components/CardImage'
 import ErrorMessage from '../components/ErrorMessage'
 import ExternalSearch from '../components/ExternalSearch'
@@ -105,6 +105,7 @@ export default function CardForm() {
   const editing = Boolean(id)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const location = useLocation()
 
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
@@ -160,6 +161,17 @@ export default function CardForm() {
     setPrefilled(detail)
     openForm()
   }
+
+  // Arrivando dal catalogo ("Aggiungi alla mia collezione") la carta scelta precompila subito il form
+  useEffect(() => {
+    const external = location.state?.external
+    if (editing || !external) return
+    api
+      .externalCard(external.id, external.lang)
+      .then((detail) => handleExternalSelect(detail, external.lang))
+      .catch((e) => setSaveError(e.message))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo all'apertura della pagina
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -225,7 +237,7 @@ export default function CardForm() {
             <Alert variant="success" dismissible onClose={() => setPrefilled(null)}>
               Dati di <strong>{prefilled.name}</strong> precompilati
               {prefilled.marketPrice != null && (
-                <> · prezzo di tendenza su Cardmarket {formatEuro(prefilled.marketPrice)}</>
+                <> · prezzo medio su Cardmarket {formatEuro(prefilled.marketPrice)}</>
               )}
               . Controlla condizione e copie prima di salvare.
             </Alert>

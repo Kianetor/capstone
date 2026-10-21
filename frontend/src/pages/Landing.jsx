@@ -1,6 +1,9 @@
-import { Button, Card, Col, Row } from 'react-bootstrap'
+import { useEffect, useState } from 'react'
+import { Button, Card, Col, Form, InputGroup, Row } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import SetTile from '../components/SetTile'
+import { api } from '../lib/api'
 
 const FEATURES = [
   {
@@ -22,6 +25,23 @@ const FEATURES = [
 
 export default function Landing() {
   const user = useSelector((state) => state.auth.user)
+  const navigate = useNavigate()
+  const [q, setQ] = useState('')
+  const [latestSets, setLatestSets] = useState(null)
+
+  // Vetrina delle ultime espansioni: se il catalogo non risponde la sezione semplicemente non compare
+  useEffect(() => {
+    api
+      .latestSets('it', 12)
+      .then(setLatestSets)
+      .catch(() => setLatestSets([]))
+  }, [])
+
+  // La ricerca si apre nel catalogo, che funziona anche senza account
+  const search = (e) => {
+    e.preventDefault()
+    if (q.trim().length >= 2) navigate(`/explore?q=${encodeURIComponent(q.trim())}`)
+  }
 
   return (
     <>
@@ -64,6 +84,46 @@ export default function Landing() {
           </div>
         </Col>
       </Row>
+
+      <Card className="my-4 cv-landing-search">
+        <Card.Body className="p-4 p-md-5 text-center">
+          <h2 className="h3 mb-2">Cerca una carta</h2>
+          <p className="text-secondary mb-4">
+            Migliaia di carte con immagini e prezzo di mercato. Non serve un account.
+          </p>
+          <Form onSubmit={search} className="mx-auto" style={{ maxWidth: 560 }}>
+            <InputGroup size="lg">
+              <Form.Control
+                placeholder="Nome o numero, es. Charizard o 4/102"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                aria-label="Cerca una carta"
+              />
+              <Button type="submit">Cerca</Button>
+            </InputGroup>
+          </Form>
+        </Card.Body>
+      </Card>
+
+      {latestSets === null || latestSets.length > 0 ? (
+        <section className="py-4">
+          <div className="d-flex justify-content-between align-items-center mb-3 gap-3">
+            <h2 className="h4 mb-0">Ultime espansioni</h2>
+            <Link to="/explore">Tutte le serie →</Link>
+          </div>
+          {latestSets === null ? (
+            <div className="text-secondary small">Carico le espansioni...</div>
+          ) : (
+            <Row xs={2} sm={3} md={4} lg={6} className="g-3">
+              {latestSets.map((set) => (
+                <Col key={set.id}>
+                  <SetTile set={set} lang="it" />
+                </Col>
+              ))}
+            </Row>
+          )}
+        </section>
+      ) : null}
 
       <Row xs={1} md={3} className="g-4 py-5">
         {FEATURES.map((f) => (
