@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                         // Catalogo e ricerca carte: consultabili anche senza account
                         .requestMatchers(HttpMethod.GET, "/api/external/**").permitAll()
                         .requestMatchers("/error").permitAll()
