@@ -101,7 +101,13 @@ export const api = {
   // Dashboard
   stats: () => request('/api/dashboard/stats'),
 
-  // API esterna di carte
+  // API esterna di carte (pubblica: funziona anche senza login)
   searchExternal: (q, lang, page = 1) => request(`/api/external/cards/search${query({ q, lang, page })}`),
   externalCard: (externalId, lang) => request(`/api/external/cards/${id(externalId)}${query({ lang })}`),
+
+  // Catalogo pubblico di serie e set (anche senza login)
+  series: (lang) => request(`/api/external/series${query({ lang })}`),
+  seriesDetail: (seriesId, lang) => request(`/api/external/series/${id(seriesId)}${query({ lang })}`),
+  latestSets: (lang, limit) => request(`/api/external/sets/latest${query({ lang, limit })}`),
+  externalSet: (setId, lang) => request(`/api/external/sets/${id(setId)}${query({ lang })}`),
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Alert, Button, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap'
 import { api } from '../lib/api'
 import { LANGUAGES } from '../lib/format'
@@ -13,12 +13,15 @@ const setCode = (externalId) => externalId.slice(0, externalId.lastIndexOf('-'))
 // Prima le carte con l'immagine: sono le più facili da riconoscere (sort è stabile, l'ordine resta)
 const imagesFirst = (cards) => [...cards].sort((a, b) => Number(!a.thumbnailUrl) - Number(!b.thumbnailUrl))
 
-// Ricerca nell'API esterna: scelto un risultato, ne chiede il dettaglio e lo passa al form con onSelect
-export default function ExternalSearch({ defaultLanguage = 'it', onSelect }) {
-  const [q, setQ] = useState('')
+// Ricerca nell'API esterna. Scelto un risultato:
+// - con onSelect ne chiede il dettaglio e lo passa al form (aggiungi carta)
+// - con onPick passa solo id e lingua (catalogo: si apre la pagina della carta)
+// initialQuery fa partire subito una ricerca, es. arrivando dalla barra della landing page
+export default function ExternalSearch({ defaultLanguage = 'it', onSelect, onPick, initialQuery = '', hint }) {
+  const [q, setQ] = useState(initialQuery)
   const [lang, setLang] = useState(defaultLanguage)
   const [results, setResults] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(Boolean(initialQuery))
   // Le ricerche per nome arrivano a pagine da 30: "Mostra altri risultati" chiede la successiva
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
@@ -29,6 +32,31 @@ export default function ExternalSearch({ defaultLanguage = 'it', onSelect }) {
   const [collapsed, setCollapsed] = useState(false)
   const [lastSearch, setLastSearch] = useState(null)
 
+  const showResults = (found, query, language) => {
+    setResults(imagesFirst(found.results))
+    setHasMore(found.hasMore)
+    setPage(1)
+    setLastSearch({ q: query, lang: language })
+    setCollapsed(found.results.length > 0)
+  }
+
+  const showError = (err) => {
+    setResults(null)
+    setError(err.message)
+  }
+
+  // Ricerca iniziale (initialQuery): gli stati cambiano solo quando arriva la risposta
+  useEffect(() => {
+    const query = initialQuery.trim()
+    if (query.length < 2) return
+    api
+      .searchExternal(query, defaultLanguage)
+      .then((found) => showResults(found, query, defaultLanguage))
+      .catch(showError)
+      .finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo all'apertura della pagina
+  }, [])
+
   const search = async (e) => {
     e.preventDefault()
     if (q.trim().length < 2) {
@@ -38,15 +66,9 @@ export default function ExternalSearch({ defaultLanguage = 'it', onSelect }) {
     setLoading(true)
     setError(null)
     try {
-      const found = await api.searchExternal(q.trim(), lang)
-      setResults(imagesFirst(found.results))
-      setHasMore(found.hasMore)
-      setPage(1)
-      setLastSearch({ q: q.trim(), lang })
-      setCollapsed(found.results.length > 0)
+      showResults(await api.searchExternal(q.trim(), lang), q.trim(), lang)
     } catch (err) {
-      setResults(null)
-      setError(err.message)
+      showError(err)
     } finally {
       setLoading(false)
     }
@@ -72,10 +94,16 @@ export default function ExternalSearch({ defaultLanguage = 'it', onSelect }) {
   }
 
   const select = async (externalId) => {
+    // La lingua è quella della ricerca fatta, anche se nel frattempo il menu è stato cambiato
+    const language = lastSearch?.lang ?? lang
+    if (onPick) {
+      onPick(externalId, language)
+      return
+    }
     setSelectingId(externalId)
     setError(null)
     try {
-      onSelect(await api.externalCard(externalId, lang), lang)
+      onSelect(await api.externalCard(externalId, language), language)
       setResults(null)
       setCollapsed(false)
     } catch (err) {
@@ -108,8 +136,12 @@ export default function ExternalSearch({ defaultLanguage = 'it', onSelect }) {
         <>
           <h2 className="h6 mb-1">Cerca la carta</h2>
           <p className="text-secondary small mb-3">
-            Cerca per nome (<em>Charizard</em>), per numero stampato in basso sulla carta (<em>4/102</em>) o per
-            entrambi (<em>Charizard 4/102</em>): i campi si compilano da soli, prezzo di mercato compreso.
+            {hint ?? (
+              <>
+                Cerca per nome (<em>Charizard</em>), per numero stampato in basso sulla carta (<em>4/102</em>) o per
+                entrambi (<em>Charizard 4/102</em>): i campi si compilano da soli, prezzo di mercato compreso.
+              </>
+            )}
           </p>
           <Form onSubmit={search}>
             <Row className="g-2">

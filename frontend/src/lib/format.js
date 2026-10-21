@@ -27,6 +27,17 @@ export const GRADING_COMPANIES = ['PSA', 'BGS', 'CGC', 'SGC', 'ACE', 'Altro']
 // Suggerimenti per il campo piattaforma di acquisti e vendite: si può comunque scrivere quello che si vuole
 export const PLATFORMS = ['Cardmarket', 'eBay', 'Vinted', 'Fiera', 'Negozio', 'Privato']
 
+// Lingue del catalogo pubblico: quelle in cui TCGdex pubblica serie e set
+export const CATALOG_LANGUAGES = [
+  { code: 'it', label: 'Italiano' },
+  { code: 'en', label: 'Inglese' },
+  { code: 'fr', label: 'Francese' },
+  { code: 'de', label: 'Tedesco' },
+  { code: 'es', label: 'Spagnolo' },
+  { code: 'pt', label: 'Portoghese' },
+  { code: 'ja', label: 'Giapponese' },
+]
+
 export const SORT_OPTIONS = [
   { value: 'createdAt,desc', label: 'Più recenti' },
   { value: 'name,asc', label: 'Nome (A-Z)' },
