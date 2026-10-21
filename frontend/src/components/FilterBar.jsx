@@ -85,11 +85,21 @@ export default function FilterBar() {
           </Form.Select>
         </Col>
       </Row>
-      {active && (
-        <Button variant="link" size="sm" className="px-0 mt-2" onClick={reset}>
-          Azzera filtri
-        </Button>
-      )}
+      <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-2">
+        <Form.Check
+          type="switch"
+          id="includeSold"
+          label="Mostra anche le carte vendute"
+          checked={filters.includeSold === 'true'}
+          onChange={(e) => dispatch(setFilters({ includeSold: e.target.checked ? 'true' : '' }))}
+          className="small"
+        />
+        {active && (
+          <Button variant="link" size="sm" className="px-0" onClick={reset}>
+            Azzera filtri
+          </Button>
+        )}
+      </div>
     </Form>
   )
 }

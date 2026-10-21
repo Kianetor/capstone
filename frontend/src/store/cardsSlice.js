@@ -9,6 +9,7 @@ export const DEFAULT_FILTERS = {
   condition: '',
   graded: '', // '' = tutte, 'true' = solo gradate, 'false' = solo non gradate
   sort: 'createdAt,desc',
+  includeSold: '', // '' = solo le carte possedute, 'true' = anche quelle vendute del tutto (0 copie)
 }
 
 // Carica la pagina corrente con i filtri salvati nello store

@@ -166,6 +166,13 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   border-color: var(--cv-accent);
 }
 
+/* Carte vendute del tutto: restano visibili (con il filtro) ma sbiadite */
+.cv-card-sold .cv-card-image,
+.cv-card-sold .card-title,
+.cv-card-sold .small {
+  opacity: 0.55;
+}
+
 /* Telefono: tre carte per riga, quindi testo e spazi più compatti */
 @media (max-width: 575.98px) {
   .cv-card-item {

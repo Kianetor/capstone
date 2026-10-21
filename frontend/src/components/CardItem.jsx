@@ -1,15 +1,24 @@
-import { Card } from 'react-bootstrap'
+import { Badge, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { formatEuro } from '../lib/format'
 import CardBadges from './CardBadges'
 import CardImage from './CardImage'
 
-// Una carta nella griglia dell'inventario: tutta la card porta al dettaglio
+// Una carta nella griglia dell'inventario: tutta la card porta al dettaglio.
+// Con 0 copie (vendute tutte) è sbiadita e ha l'etichetta "Venduta"
 export default function CardItem({ card }) {
+  const sold = card.quantity === 0
   return (
-    <Card className="h-100 cv-card-item">
+    <Card className={`h-100 cv-card-item ${sold ? 'cv-card-sold' : ''}`}>
       <Card.Body className="p-2 p-sm-3 d-flex flex-column">
-        <CardImage src={card.imageUrl} alt={card.name} className="mb-3" />
+        <div className="position-relative mb-3">
+          <CardImage src={card.imageUrl} alt={card.name} />
+          {sold && (
+            <Badge bg="dark" className="position-absolute top-0 start-0 m-1 border">
+              Venduta
+            </Badge>
+          )}
+        </div>
         <Card.Title as="h3" className="h6 mb-1 text-truncate">
           <Link to={`/cards/${card.id}`} className="stretched-link text-reset text-decoration-none">
             {card.name}
