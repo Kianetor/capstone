@@ -19,7 +19,7 @@ export default function AppNavbar() {
   }
 
   return (
-    // collapseOnSelect: su telefono il menu si richiude dopo aver scelto una voce
+    // collapseOnSelect: su telefono (da scollegati) il menu si richiude dopo aver scelto una voce
     <Navbar expand="md" sticky="top" collapseOnSelect className="cv-navbar py-2">
       <Container>
         <Navbar.Brand as={Link} to={user ? '/dashboard' : '/'} className="d-flex align-items-center gap-2 fw-bold">
@@ -28,47 +28,54 @@ export default function AppNavbar() {
           </span>
           Pokéteca
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="main-nav" />
-        <Navbar.Collapse id="main-nav">
-          {user ? (
-            <>
+        {user ? (
+          <>
+            {/* Su telefono le sezioni sono nella barra in basso: qui restano solo per il computer (da md in su) */}
+            <Navbar.Collapse id="main-nav">
               {/* activeKey={null}: la voce evidenziata la decide solo NavLink in base all'indirizzo.
                   Altrimenti Nav ricorda l'ultima voce cliccata e, cambiando pagina da un altro link, ne restano due gialle */}
               <Nav className="me-auto" activeKey={null}>
-                <Nav.Link as={NavLink} to="/dashboard" eventKey="dashboard">
+                <Nav.Link as={NavLink} to="/dashboard">
                   Dashboard
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/cards" end eventKey="cards">
+                <Nav.Link as={NavLink} to="/cards" end>
                   Inventario
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/transactions" eventKey="transactions">
+                <Nav.Link as={NavLink} to="/transactions">
                   Transazioni
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/explore" eventKey="explore">
+                <Nav.Link as={NavLink} to="/explore">
                   Esplora
                 </Nav.Link>
               </Nav>
-              <Nav>
-                <NavDropdown
-                  title={
-                    <span className="d-inline-flex align-items-center gap-2">
-                      <Avatar user={user} />
-                      {user.username}
-                    </span>
-                  }
-                  align="end"
-                  id="user-menu"
-                  className="cv-user-menu"
-                >
-                  <NavDropdown.ItemText className="small text-secondary">{user.email}</NavDropdown.ItemText>
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item onClick={() => setChoosingAvatar(true)}>Cambia avatar</NavDropdown.Item>
-                  <NavDropdown.Item onClick={handleLogout}>Esci</NavDropdown.Item>
-                </NavDropdown>
-              </Nav>
-            </>
-          ) : (
-            <>
+            </Navbar.Collapse>
+            {/* Fuori dal menu a scomparsa: l'avatar si vede sempre, anche su telefono */}
+            <Nav>
+              <NavDropdown
+                title={
+                  <span className="d-inline-flex align-items-center gap-2">
+                    <Avatar user={user} />
+                    <span className="cv-user-name">{user.username}</span>
+                  </span>
+                }
+                align="end"
+                id="user-menu"
+                className="cv-user-menu"
+              >
+                <NavDropdown.ItemText>
+                  <span className="d-block fw-bold">{user.username}</span>
+                  <span className="d-block small text-secondary">{user.email}</span>
+                </NavDropdown.ItemText>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={() => setChoosingAvatar(true)}>Cambia avatar</NavDropdown.Item>
+                <NavDropdown.Item onClick={handleLogout}>Esci</NavDropdown.Item>
+              </NavDropdown>
+            </Nav>
+          </>
+        ) : (
+          <>
+            <Navbar.Toggle aria-controls="main-nav" />
+            <Navbar.Collapse id="main-nav">
               <Nav className="me-auto" activeKey={null}>
                 <Nav.Link as={NavLink} to="/explore" eventKey="explore">
                   Esplora
@@ -87,9 +94,9 @@ export default function AppNavbar() {
                   Registrati
                 </Button>
               </Nav>
-            </>
-          )}
-        </Navbar.Collapse>
+            </Navbar.Collapse>
+          </>
+        )}
       </Container>
       {user && <AvatarModal show={choosingAvatar} user={user} onHide={() => setChoosingAvatar(false)} />}
     </Navbar>
