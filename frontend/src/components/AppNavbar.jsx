@@ -32,7 +32,9 @@ export default function AppNavbar() {
         <Navbar.Collapse id="main-nav">
           {user ? (
             <>
-              <Nav className="me-auto">
+              {/* activeKey={null}: la voce evidenziata la decide solo NavLink in base all'indirizzo.
+                  Altrimenti Nav ricorda l'ultima voce cliccata e, cambiando pagina da un altro link, ne restano due gialle */}
+              <Nav className="me-auto" activeKey={null}>
                 <Nav.Link as={NavLink} to="/dashboard" eventKey="dashboard">
                   Dashboard
                 </Nav.Link>
@@ -56,6 +58,7 @@ export default function AppNavbar() {
                   }
                   align="end"
                   id="user-menu"
+                  className="cv-user-menu"
                 >
                   <NavDropdown.ItemText className="small text-secondary">{user.email}</NavDropdown.ItemText>
                   <NavDropdown.Divider />
@@ -66,12 +69,12 @@ export default function AppNavbar() {
             </>
           ) : (
             <>
-              <Nav className="me-auto">
+              <Nav className="me-auto" activeKey={null}>
                 <Nav.Link as={NavLink} to="/explore" eventKey="explore">
                   Esplora
                 </Nav.Link>
               </Nav>
-              <Nav className="align-items-md-center gap-md-2">
+              <Nav className="align-items-md-center gap-md-2" activeKey={null}>
                 <Nav.Link as={NavLink} to="/login" eventKey="login">
                   Accedi
                 </Nav.Link>

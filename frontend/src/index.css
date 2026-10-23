@@ -16,8 +16,8 @@
   --cv-danger: #ff7a7a;
   /* Riflesso olografico: i colori pastello delle carte holo, tutti leggibili sullo sfondo scuro */
   --cv-holo: linear-gradient(110deg, #ff9ad5, #c7a6ff 25%, #8fd3ff 50%, #8ff5d8 72%, #ffe68a 100%);
-  --cv-font-display: 'Sora', system-ui, sans-serif;
-  --cv-font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --cv-font-display: 'Fredoka', system-ui, sans-serif;
+  --cv-font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --cv-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   --bs-body-bg: var(--cv-bg);
@@ -67,8 +67,8 @@ h5,
 .navbar-brand,
 .display-font {
   font-family: var(--cv-font-display);
-  letter-spacing: -0.025em;
-  font-weight: 700;
+  letter-spacing: -0.005em;
+  font-weight: 600;
   text-wrap: balance;
 }
 
@@ -314,6 +314,21 @@ a:focus-visible,
   color: var(--cv-text);
   background-color: var(--cv-surface-2);
   border-color: var(--cv-accent);
+}
+
+/* Menu del profilo: avatar, nome e freccia sulla stessa linea; voci un po' più piccole */
+.cv-user-menu .dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cv-user-menu .dropdown-toggle::after {
+  margin-left: 0;
+}
+
+.cv-user-menu .dropdown-menu {
+  font-size: 0.9rem;
 }
 
 .cv-logo {
@@ -651,8 +666,8 @@ a:focus-visible,
 .cv-hero-value {
   font-family: var(--cv-font-display);
   font-size: clamp(2.6rem, 7vw, 3.8rem);
-  font-weight: 800;
-  letter-spacing: -0.035em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
   line-height: 1.05;
   font-variant-numeric: tabular-nums;
 }
@@ -660,8 +675,8 @@ a:focus-visible,
 .cv-stat-value {
   font-family: var(--cv-font-display);
   font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.005em;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }

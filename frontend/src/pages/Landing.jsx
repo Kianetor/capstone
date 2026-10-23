@@ -69,7 +69,7 @@ export default function Landing() {
             ) : (
               <>
                 <Button as={Link} to="/register" size="lg">
-                  Inizia gratis
+                  Registrati
                 </Button>
                 <Button as={Link} to="/login" size="lg" variant="outline-primary">
                   Accedi
