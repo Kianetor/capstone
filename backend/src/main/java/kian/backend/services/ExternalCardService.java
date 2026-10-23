@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,8 +63,10 @@ public class ExternalCardService {
     private static final String UNAVAILABLE = "Ricerca carte non disponibile al momento, inserisci i dati a mano";
 
     private final RestClient restClient;
+    private final JapaneseNames japaneseNames;
 
-    public ExternalCardService(@Value("${app.tcgdex.base-url}") String baseUrl) {
+    public ExternalCardService(@Value("${app.tcgdex.base-url}") String baseUrl, JapaneseNames japaneseNames) {
+        this.japaneseNames = japaneseNames;
         // Se l'API è lenta non blocchiamo l'utente: dopo 5 secondi si passa all'inserimento manuale
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(Duration.ofSeconds(5));
@@ -92,7 +95,7 @@ public class ExternalCardService {
                 Optional<TcgdexCard> card = fetch(TcgdexCard.class, "/{lang}/cards/{id}", language, q)
                         .filter(c -> isPhysical(language, c.id()));
                 if (card.isPresent()) {
-                    return new ExternalSearchResponse(List.of(summary(card.get())), false);
+                    return new ExternalSearchResponse(List.of(summary(card.get(), language)), false);
                 }
             }
 
@@ -109,23 +112,50 @@ public class ExternalCardService {
             Matcher nameAndNumber = NAME_AND_NUMBER.matcher(q);
             if (nameAndNumber.matches()) {
                 String number = withoutLeadingZeros(nameAndNumber.group(2));
-                List<ExternalCardSummary> found = byName(language, nameAndNumber.group(1), 1, 250).stream()
+                NameQuery nameQuery = nameQuery(language, nameAndNumber.group(1));
+                List<ExternalCardSummary> found = byName(language, nameQuery.apiName(), 1, 250).stream()
                         .filter(c -> isPhysical(language, c.id()))
                         .filter(c -> number.equals(withoutLeadingZeros(c.localId())))
-                        .map(ExternalCardService::summary)
+                        .map(c -> summary(c, language))
+                        .filter(nameQuery::matches)
                         .toList();
                 return new ExternalSearchResponse(found, false);
             }
 
             // 4. Solo nome, a pagine. hasMore guarda la pagina intera di TCGdex, prima di togliere le carte Pocket
-            List<TcgdexCardBrief> found = byName(language, q, pageNumber, MAX_RESULTS);
+            NameQuery nameQuery = nameQuery(language, q);
+            List<TcgdexCardBrief> found = byName(language, nameQuery.apiName(), pageNumber, MAX_RESULTS);
             return new ExternalSearchResponse(found.stream()
                     .filter(c -> isPhysical(language, c.id()))
-                    .map(ExternalCardService::summary)
+                    .map(c -> summary(c, language))
+                    .filter(nameQuery::matches)
                     .toList(), found.size() == MAX_RESULTS);
         } catch (RestClientException e) {
             throw new ExternalServiceException(UNAVAILABLE, e);
         }
+    }
+
+    // Nome da chiedere a TCGdex e parte restante da cercare tra i risultati.
+    // In giapponese TCGdex conosce solo il katakana: "charizard ex" diventa リザードン + filtro "ex" sui nomi tradotti
+    private record NameQuery(String apiName, String rest) {
+        boolean matches(ExternalCardSummary card) {
+            return rest.isBlank() || card.name().toLowerCase(Locale.ROOT).contains(rest.toLowerCase(Locale.ROOT));
+        }
+    }
+
+    private NameQuery nameQuery(String language, String name) {
+        if (!"ja".equals(language) || JapaneseNames.containsJapanese(name)) {
+            return new NameQuery(name, "");
+        }
+        Optional<String> whole = japaneseNames.japaneseName(name);
+        if (whole.isPresent()) {
+            return new NameQuery(whole.get(), "");
+        }
+        String[] parts = name.trim().split("\\s+", 2);
+        String rest = parts.length > 1 ? parts[1] : "";
+        return japaneseNames.japaneseName(parts[0])
+                .map(ja -> new NameQuery(ja, rest))
+                .orElse(new NameQuery(name, ""));
     }
 
     private List<TcgdexCardBrief> byName(String language, String name, int page, int perPage) {
@@ -155,8 +185,9 @@ public class ExternalCardService {
             if (card.isEmpty() && !number.equals(withoutLeadingZeros(number))) {
                 card = fetch(TcgdexCard.class, "/{lang}/sets/{set}/{number}", language, set.id(), withoutLeadingZeros(number));
             }
-            card.filter(c -> name.isBlank() || c.name().toLowerCase(Locale.ROOT).contains(name.toLowerCase(Locale.ROOT)))
-                    .map(ExternalCardService::summary)
+            // Il filtro sul nome confronta anche la versione in alfabeto latino delle carte giapponesi
+            card.map(c -> summary(c, language))
+                    .filter(c -> name.isBlank() || c.name().toLowerCase(Locale.ROOT).contains(name.toLowerCase(Locale.ROOT)))
                     .ifPresent(found::add);
         }
         return found;
@@ -199,8 +230,13 @@ public class ExternalCardService {
             List<ExternalSeriesSummary> result = new ArrayList<>();
             for (TcgdexSerieBrief s : series == null ? new TcgdexSerieBrief[0] : series) {
                 if (!EXCLUDED_SERIES.contains(s.id())) {
-                    result.add(new ExternalSeriesSummary(s.id(), s.name(), logo(s.logo())));
+                    result.add(new ExternalSeriesSummary(s.id(), seriesName(language, s.id(), s.name()), logo(s.logo())));
                 }
+            }
+            if ("ja".equals(language)) {
+                result.sort(Comparator.comparingInt((ExternalSeriesSummary serie) ->
+                        japaneseNames.seriesRecency(serie.id())).reversed());
+                return result;
             }
             return result.reversed();
         }));
@@ -214,10 +250,17 @@ public class ExternalCardService {
             TcgdexSerie serie = fetch(TcgdexSerie.class, "/{lang}/series/{id}", language, id)
                     .orElseThrow(() -> new NotFoundException("Serie non trovata"));
             List<ExternalSetSummary> sets = (serie.sets() == null ? List.<TcgdexSet>of() : serie.sets()).stream()
-                    .map(ExternalCardService::setSummary)
+                    .map(set -> setSummary(set, language))
                     .toList()
                     .reversed();
-            return new ExternalSeriesDetail(serie.id(), serie.name(), logo(serie.logo()), date(serie.releaseDate()), sets);
+            if ("ja".equals(language)) {
+                // In giapponese l'ordine di TCGdex è sparso: prima i set recenti noti, dal più nuovo
+                sets = sets.stream()
+                        .sorted(Comparator.comparingInt((ExternalSetSummary set) -> japaneseNames.recency(set.id())).reversed())
+                        .toList();
+            }
+            return new ExternalSeriesDetail(serie.id(), seriesName(language, serie.id(), serie.name()), logo(serie.logo()),
+                    date(serie.releaseDate()), sets);
         }));
     }
 
@@ -229,11 +272,12 @@ public class ExternalCardService {
             TcgdexSetFull set = fetch(TcgdexSetFull.class, "/{lang}/sets/{id}", language, id)
                     .orElseThrow(() -> new NotFoundException("Set non trovato"));
             TcgdexCardCount count = set.cardCount();
-            return new ExternalSetDetail(set.id(), set.name(), logo(set.logo()), date(set.releaseDate()),
-                    set.serie() != null ? set.serie().id() : null, set.serie() != null ? set.serie().name() : null,
+            return new ExternalSetDetail(set.id(), setName(language, set.id(), set.name()), logo(set.logo()),
+                    date(set.releaseDate()), set.serie() != null ? set.serie().id() : null,
+                    set.serie() != null ? seriesName(language, set.serie().id(), set.serie().name()) : null,
                     count != null ? count.official() : null, count != null ? count.total() : null,
                     (set.cards() == null ? List.<TcgdexCardBrief>of() : set.cards()).stream()
-                            .map(ExternalCardService::summary)
+                            .map(c -> summary(c, language))
                             .toList());
         }));
     }
@@ -286,9 +330,9 @@ public class ExternalCardService {
         return id;
     }
 
-    private static ExternalSetSummary setSummary(TcgdexSet s) {
+    private ExternalSetSummary setSummary(TcgdexSet s, String language) {
         TcgdexCardCount count = s.cardCount();
-        return new ExternalSetSummary(s.id(), s.name(), logo(s.logo()),
+        return new ExternalSetSummary(s.id(), setName(language, s.id(), s.name()), logo(s.logo()),
                 count != null ? count.official() : null, count != null ? count.total() : null);
     }
 
@@ -310,12 +354,27 @@ public class ExternalCardService {
         }
     }
 
-    private static ExternalCardSummary summary(TcgdexCardBrief c) {
-        return new ExternalCardSummary(c.id(), c.name(), c.localId(), image(c.image(), "low"));
+    private ExternalCardSummary summary(TcgdexCardBrief c, String language) {
+        return new ExternalCardSummary(c.id(), cardName(language, c.name(), c.localId()), c.localId(),
+                image(c.image(), "low"));
     }
 
-    private static ExternalCardSummary summary(TcgdexCard c) {
-        return new ExternalCardSummary(c.id(), c.name(), c.localId(), image(c.image(), "low"));
+    private ExternalCardSummary summary(TcgdexCard c, String language) {
+        return new ExternalCardSummary(c.id(), cardName(language, c.name(), c.localId()), c.localId(),
+                image(c.image(), "low"));
+    }
+
+    // In giapponese nomi di carte, set e serie passano dal traduttore: niente caratteri giapponesi a schermo
+    private String cardName(String language, String name, String number) {
+        return "ja".equals(language) ? japaneseNames.cardName(name, number) : name;
+    }
+
+    private String setName(String language, String id, String name) {
+        return "ja".equals(language) ? japaneseNames.setName(id, name) : name;
+    }
+
+    private String seriesName(String language, String id, String name) {
+        return "ja".equals(language) ? japaneseNames.seriesName(id, name) : name;
     }
 
     private static String withoutLeadingZeros(String number) {
@@ -342,8 +401,9 @@ public class ExternalCardService {
             throw new NotFoundException("Carta non trovata nell'API esterna");
         }
 
-        String setName = card.set() != null ? card.set().name() : null;
-        return new ExternalCardDetail(card.id(), card.name(), setName, cardNumber(card), card.rarity(),
+        String setName = card.set() != null ? setName(language, card.set().id(), card.set().name()) : null;
+        return new ExternalCardDetail(card.id(), cardName(language, card.name(), card.localId()), setName,
+                cardNumber(card), card.rarity(),
                 image(card.image(), "high"), marketPrice(card));
     }
 
