@@ -18,6 +18,7 @@ export default function Inventory() {
   // Nome della carta appena aggiunta (arriva dal form): mostriamo la conferma una volta sola
   const [added, setAdded] = useState(location.state?.added ?? null)
   const [purchased] = useState(Boolean(location.state?.purchased))
+  const [photoFailed] = useState(Boolean(location.state?.photoFailed))
   // Carta con più versioni di cui stiamo guardando il confronto
   const [openGroup, setOpenGroup] = useState(null)
 
@@ -56,6 +57,7 @@ export default function Inventory() {
       {added && (
         <Alert variant="success" dismissible onClose={() => setAdded(null)}>
           <strong>{added}</strong> aggiunta all'inventario{purchased && ' e acquisto registrato'}.
+          {photoFailed && ' La foto però non è stata caricata: riprova da "Modifica".'}
         </Alert>
       )}
 

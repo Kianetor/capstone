@@ -39,6 +39,10 @@ const EMPTY_FORM = {
   buyPlatform: '',
 }
 
+// Foto caricata dall'utente: stessi limiti del backend (ImageService)
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const PHOTO_MAX_BYTES = 5 * 1024 * 1024
+
 // Errori del backend sull'acquisto (purchase.*) -> campi del form
 const PURCHASE_ERRORS = { 'purchase.unitPrice': 'buyPrice', 'purchase.date': 'buyDate', purchaseValid: 'quantity' }
 
@@ -117,6 +121,13 @@ export default function CardForm() {
   // Aggiungendo una carta il form compare solo dopo aver scelto un risultato o "Inserisci carta manualmente"
   const [showForm, setShowForm] = useState(editing)
   const formRef = useRef(null)
+  // Foto scelta aggiungendo una carta: si carica dopo il salvataggio, quando la carta ha un id
+  const [photo, setPhoto] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [photoError, setPhotoError] = useState(null)
+
+  // L'anteprima locale della foto occupa memoria finché non la liberiamo
+  useEffect(() => () => photo && URL.revokeObjectURL(photo.preview), [photo])
 
   const openForm = () => {
     setShowForm(true)
@@ -173,6 +184,29 @@ export default function CardForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo all'apertura della pagina
   }, [])
 
+  // In modifica la foto si carica subito e diventa l'immagine della carta; aggiungendo si mostra solo l'anteprima
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // si può scegliere di nuovo lo stesso file
+    if (!file) return
+    if (!PHOTO_TYPES.includes(file.type)) return setPhotoError('Formati ammessi: JPEG, PNG, WEBP')
+    if (file.size > PHOTO_MAX_BYTES) return setPhotoError('Il file supera i 5 MB')
+    setPhotoError(null)
+    if (!editing) {
+      setPhoto({ file, preview: URL.createObjectURL(file) })
+      return
+    }
+    setUploading(true)
+    try {
+      const card = await api.uploadCardImage(id, file)
+      set('imageUrl', card.imageUrl)
+    } catch (err) {
+      setPhotoError(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     const found = validate(form, editing)
@@ -186,9 +220,18 @@ export default function CardForm() {
       if (editing) {
         navigate(`/cards/${saved.id}`)
       } else {
+        // La carta ora esiste: carichiamo la foto scelta. Se non riesce la carta resta salvata con l'immagine di prima
+        let photoFailed = false
+        if (photo) {
+          try {
+            await api.uploadCardImage(saved.id, photo.file)
+          } catch {
+            photoFailed = true
+          }
+        }
         // Carta nuova: torniamo alla prima pagina dell'inventario, dove compare per prima, con un messaggio di conferma
         dispatch(setPage(0))
-        navigate('/cards', { state: { added: saved.name, purchased: form.buyEnabled } })
+        navigate('/cards', { state: { added: saved.name, purchased: form.buyEnabled, photoFailed } })
       }
     } catch (err) {
       if (err.errors) {
@@ -245,10 +288,36 @@ export default function CardForm() {
             <Row className="g-4">
               <Col md={4} lg={3}>
                 <CardImage
-                  src={form.imageUrl}
+                  src={photo?.preview ?? form.imageUrl}
                   alt={form.name || 'Anteprima carta'}
                   className="cv-card-image-form mx-auto"
                 />
+                <div className="cv-card-image-form mx-auto mt-3">
+                  {/* Il vero campo file è nascosto: si apre cliccando l'etichetta, che ha l'aspetto di un pulsante */}
+                  <Form.Label
+                    htmlFor="photo"
+                    className={`btn btn-outline-primary btn-sm w-100 mb-0 ${uploading ? 'disabled' : ''}`}
+                  >
+                    {uploading ? (
+                      <Spinner size="sm" animation="border" />
+                    ) : photo ? (
+                      'Cambia foto'
+                    ) : (
+                      'Carica una tua foto'
+                    )}
+                  </Form.Label>
+                  <Form.Control
+                    id="photo"
+                    type="file"
+                    accept={PHOTO_TYPES.join(',')}
+                    onChange={handlePhoto}
+                    disabled={uploading}
+                    className="visually-hidden"
+                  />
+                  <Form.Text className={photoError ? 'text-danger' : 'text-secondary'}>
+                    {photoError ?? 'JPEG, PNG o WEBP fino a 5 MB: ad esempio la tua copia o lo slab gradato.'}
+                  </Form.Text>
+                </div>
               </Col>
               <Col md={8} lg={9}>
                 <Card>
