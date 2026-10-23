@@ -1,7 +1,15 @@
 import { Button, Modal, Spinner } from 'react-bootstrap'
 
 // Finestra di conferma per le azioni che non si possono annullare
-export default function ConfirmModal({ show, title, children, confirmLabel = 'Conferma', loading, onConfirm, onCancel }) {
+export default function ConfirmModal({
+  show,
+  title,
+  children,
+  confirmLabel = 'Conferma',
+  loading,
+  onConfirm,
+  onCancel,
+}) {
   return (
     <Modal show={show} onHide={loading ? undefined : onCancel} centered>
       <Modal.Header closeButton={!loading}>

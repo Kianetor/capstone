@@ -20,7 +20,7 @@ public class ImageService {
 
     private static final long MAX_SIZE = 5 * 1024 * 1024;
     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
-    private static final String FOLDER = "cardvault";
+    private static final String FOLDER = "poketeca";
 
     // null se le chiavi non sono configurate: il resto dell'app funziona lo stesso
     private final Cloudinary cloudinary;
