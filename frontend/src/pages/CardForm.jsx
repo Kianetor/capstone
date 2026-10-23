@@ -210,7 +210,7 @@ export default function CardForm() {
   return (
     <>
       <div className="mb-4">
-        <Link to={editing ? `/cards/${id}` : '/cards'} className="small text-secondary text-decoration-none">
+        <Link to={editing ? `/cards/${id}` : '/cards'} className="cv-hit small text-secondary text-decoration-none">
           ← {editing ? 'Torna alla carta' : "Torna all'inventario"}
         </Link>
         <h1 className="h2 mt-2 mb-0">{editing ? 'Modifica carta' : 'Aggiungi carta'}</h1>
@@ -236,10 +236,8 @@ export default function CardForm() {
           {prefilled && (
             <Alert variant="success" dismissible onClose={() => setPrefilled(null)}>
               Dati di <strong>{prefilled.name}</strong> precompilati
-              {prefilled.marketPrice != null && (
-                <> · prezzo medio su Cardmarket {formatEuro(prefilled.marketPrice)}</>
-              )}
-              . Controlla condizione e copie prima di salvare.
+              {prefilled.marketPrice != null && <> · prezzo medio su Cardmarket {formatEuro(prefilled.marketPrice)}</>}.
+              Controlla condizione e copie prima di salvare.
             </Alert>
           )}
 
@@ -474,9 +472,7 @@ export default function CardForm() {
                                 {form.buyPrice !== '' && Number(form.quantity) > 0 && (
                                   <Col xs={12} className="small text-secondary">
                                     Spesa registrata: {form.quantity} × {formatEuro(form.buyPrice)} ={' '}
-                                    <strong>
-                                      {formatEuro(Number(form.quantity) * Number(form.buyPrice))}
-                                    </strong>
+                                    <strong>{formatEuro(Number(form.quantity) * Number(form.buyPrice))}</strong>
                                   </Col>
                                 )}
                               </Row>

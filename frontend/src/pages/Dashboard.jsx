@@ -127,7 +127,7 @@ export default function Dashboard() {
               <Card className="h-100">
                 <Card.Header className="d-flex justify-content-between align-items-center bg-transparent py-3">
                   <h2 className="h5 mb-0">Ultime transazioni</h2>
-                  <Link to="/transactions" className="small">
+                  <Link to="/transactions" className="cv-hit small">
                     Vedi tutte →
                   </Link>
                 </Card.Header>
@@ -165,7 +165,7 @@ export default function Dashboard() {
               <Card className="h-100">
                 <Card.Header className="d-flex justify-content-between align-items-center bg-transparent py-3">
                   <h2 className="h5 mb-0">Carte di maggior valore</h2>
-                  <Link to="/cards" className="small">
+                  <Link to="/cards" className="cv-hit small">
                     Inventario →
                   </Link>
                 </Card.Header>

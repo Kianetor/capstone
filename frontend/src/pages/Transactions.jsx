@@ -214,7 +214,7 @@ export default function Transactions() {
                     <td>{t.platform ?? '—'}</td>
                     <td>{t.counterparty ?? '—'}</td>
                     <td className="text-end">
-                      <Button variant="link" size="sm" className="text-danger p-0" onClick={() => setToUndo(t)}>
+                      <Button variant="link" size="sm" className="cv-hit text-danger px-0" onClick={() => setToUndo(t)}>
                         Annulla
                       </Button>
                     </td>
@@ -248,7 +248,12 @@ export default function Transactions() {
                     </span>
                     <span className="fw-bold">{formatEuro(t.total)}</span>
                   </div>
-                  <Button variant="link" size="sm" className="text-danger p-0 mt-1" onClick={() => setToUndo(t)}>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="cv-hit text-danger px-0 mt-1"
+                    onClick={() => setToUndo(t)}
+                  >
                     Annulla
                   </Button>
                 </Card.Body>

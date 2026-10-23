@@ -129,7 +129,9 @@ export default function Landing() {
         <section className="py-4">
           <div className="d-flex justify-content-between align-items-center mb-3 gap-3">
             <h2 className="h4 mb-0">Ultime espansioni</h2>
-            <Link to="/explore">Tutte le serie →</Link>
+            <Link to="/explore" className="cv-hit">
+              Tutte le serie →
+            </Link>
           </div>
           {latestSets === null ? (
             <div className="text-secondary small">Carico le espansioni...</div>

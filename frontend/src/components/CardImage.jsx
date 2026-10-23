@@ -10,7 +10,7 @@ export default function CardImage({ src, alt, className = '' }) {
       {showImage ? (
         <img src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} />
       ) : (
-        <div className="cv-card-placeholder" aria-label="Immagine non disponibile">
+        <div className="cv-card-placeholder" role="img" aria-label="Immagine non disponibile">
           <span aria-hidden="true">★</span>
           <small>Nessuna immagine</small>
         </div>

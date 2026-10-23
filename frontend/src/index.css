@@ -105,6 +105,67 @@ h5,
   box-shadow: 0 10px 26px -10px rgba(255, 203, 5, 0.85);
 }
 
+/* Pulsanti a contorno rossi, verdi e grigi con i colori del tema: quelli di Bootstrap sul fondo scuro
+   non arrivano al contrasto minimo (4.5:1) */
+.btn-outline-danger {
+  --bs-btn-color: var(--cv-danger);
+  --bs-btn-border-color: rgba(255, 122, 122, 0.6);
+  --bs-btn-hover-bg: var(--cv-danger);
+  --bs-btn-hover-border-color: var(--cv-danger);
+  --bs-btn-hover-color: #14181f;
+  --bs-btn-active-bg: var(--cv-danger);
+  --bs-btn-active-color: #14181f;
+}
+
+.btn-outline-success {
+  --bs-btn-color: var(--cv-success);
+  --bs-btn-border-color: rgba(62, 207, 142, 0.6);
+  --bs-btn-hover-bg: var(--cv-success);
+  --bs-btn-hover-border-color: var(--cv-success);
+  --bs-btn-hover-color: #14181f;
+  --bs-btn-active-bg: var(--cv-success);
+  --bs-btn-active-color: #14181f;
+  --bs-btn-disabled-color: var(--cv-muted);
+  --bs-btn-disabled-border-color: var(--cv-border);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--cv-text);
+  --bs-btn-border-color: var(--cv-border);
+  --bs-btn-hover-bg: var(--cv-surface-2);
+  --bs-btn-hover-border-color: var(--cv-muted);
+  --bs-btn-hover-color: var(--cv-text);
+  --bs-btn-active-bg: var(--cv-surface-2);
+  --bs-btn-active-color: var(--cv-text);
+}
+
+/* Link e pulsanti piccoli (← Torna..., Vedi tutte →, Annulla): area di tocco più alta senza spostare nulla */
+.cv-hit {
+  display: inline-block;
+  padding-block: 0.7rem !important;
+  margin-block: -0.7rem;
+}
+
+/* Interruttori un po' più grandi: più facili da toccare */
+.form-switch .form-check-input {
+  width: 2.6em;
+  height: 1.4em;
+  margin-top: 0;
+}
+
+.form-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.6rem;
+}
+
+/* Niente parola da sola a fine paragrafo */
+p,
+figcaption {
+  text-wrap: pretty;
+}
+
 .btn-outline-primary {
   --bs-btn-color: var(--cv-accent);
   --bs-btn-border-color: rgba(255, 203, 5, 0.6);
@@ -682,16 +743,16 @@ a:focus-visible,
     border-radius: 0.4rem;
   }
 
-  .cv-card-item h3 {
+  .cv-card-item .card-title {
     font-size: 0.8rem;
   }
 
   .cv-card-item .small {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 
   .cv-card-item .badge {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     padding: 0.25em 0.4em;
   }
 

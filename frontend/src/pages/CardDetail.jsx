@@ -136,7 +136,7 @@ export default function CardDetail() {
 
   return (
     <>
-      <Link to="/cards" className="small text-secondary text-decoration-none">
+      <Link to="/cards" className="cv-hit small text-secondary text-decoration-none">
         ← Torna all'inventario
       </Link>
 
@@ -281,7 +281,7 @@ export default function CardDetail() {
                       <Button
                         variant="link"
                         size="sm"
-                        className="text-danger p-0"
+                        className="cv-hit text-danger px-0"
                         onClick={() => setTxToUndo(t)}
                         aria-label="Annulla transazione"
                         title="Annulla transazione"

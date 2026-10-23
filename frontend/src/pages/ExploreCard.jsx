@@ -39,7 +39,7 @@ export default function ExploreCard() {
   if (error) {
     return (
       <>
-        <Link to={`/explore?lang=${lang}`} className="small text-secondary text-decoration-none">
+        <Link to={`/explore?lang=${lang}`} className="cv-hit small text-secondary text-decoration-none">
           ← Torna al catalogo
         </Link>
         <ErrorMessage message={error} className="mt-3" />
@@ -69,7 +69,7 @@ export default function ExploreCard() {
 
   return (
     <>
-      <Link to={setLink} className="small text-secondary text-decoration-none">
+      <Link to={setLink} className="cv-hit small text-secondary text-decoration-none">
         ← {card.setName ?? 'Torna al set'}
       </Link>
 

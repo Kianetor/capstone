@@ -31,7 +31,7 @@ export default function CardItem({ group, onOpen }) {
             </span>
           )}
         </div>
-        <Card.Title as="h3" className="h6 mb-1 text-truncate">
+        <Card.Title as="h2" className="h6 mb-1 text-truncate">
           {single ? (
             <Link to={to} className="stretched-link text-reset text-decoration-none">
               {group.name}

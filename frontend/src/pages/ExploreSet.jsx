@@ -33,7 +33,7 @@ export default function ExploreSet() {
   if (error) {
     return (
       <>
-        <Link to={back} className="small text-secondary text-decoration-none">
+        <Link to={back} className="cv-hit small text-secondary text-decoration-none">
           ← Torna al catalogo
         </Link>
         <ErrorMessage message={error} className="mt-3" />
@@ -50,7 +50,7 @@ export default function ExploreSet() {
 
   return (
     <>
-      <Link to={back} className="small text-secondary text-decoration-none">
+      <Link to={back} className="cv-hit small text-secondary text-decoration-none">
         ← {set.seriesName ?? 'Torna al catalogo'}
       </Link>
 
