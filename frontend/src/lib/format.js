@@ -12,14 +12,14 @@ export const LANGUAGES = [
   { value: 'CHN', label: 'Cinese', tcgdex: 'en' },
 ]
 
-// Stessi nomi usati da Cardmarket, dalla condizione migliore alla peggiore
+// Stessi nomi e sigle usati da Cardmarket, dalla condizione migliore alla peggiore
 export const CONDITIONS = [
-  { value: 'MINT', label: 'Mint', short: 'MT', variant: 'success' },
-  { value: 'NEAR_MINT', label: 'Near Mint', short: 'NM', variant: 'success' },
-  { value: 'EXCELLENT', label: 'Excellent', short: 'EX', variant: 'info' },
-  { value: 'GOOD', label: 'Good', short: 'GD', variant: 'primary' },
-  { value: 'PLAYED', label: 'Played', short: 'PL', variant: 'warning' },
-  { value: 'POOR', label: 'Poor', short: 'PO', variant: 'danger' },
+  { value: 'MINT', label: 'Mint', short: 'MT' },
+  { value: 'NEAR_MINT', label: 'Near Mint', short: 'NM' },
+  { value: 'EXCELLENT', label: 'Excellent', short: 'EX' },
+  { value: 'GOOD', label: 'Good', short: 'GD' },
+  { value: 'PLAYED', label: 'Played', short: 'PL' },
+  { value: 'POOR', label: 'Poor', short: 'PO' },
 ]
 
 export const GRADING_COMPANIES = ['PSA', 'BGS', 'CGC', 'SGC', 'ACE', 'Altro']
@@ -48,8 +48,7 @@ export const SORT_OPTIONS = [
 ]
 
 export const languageLabel = (value) => LANGUAGES.find((l) => l.value === value)?.label ?? value
-export const condition = (value) =>
-  CONDITIONS.find((c) => c.value === value) ?? { label: value, short: value, variant: 'secondary' }
+export const condition = (value) => CONDITIONS.find((c) => c.value === value) ?? { label: value, short: value }
 export const tcgdexLanguage = (value) => LANGUAGES.find((l) => l.value === value)?.tcgdex ?? 'en'
 
 // useGrouping 'always': il punto delle migliaia anche sotto 10.000 (1.815,50 €), più leggibile per i prezzi
@@ -73,3 +72,4 @@ export function todayIso() {
   const pad = (n) => String(n).padStart(2, '0')
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
+

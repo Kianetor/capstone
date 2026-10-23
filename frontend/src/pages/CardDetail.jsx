@@ -3,6 +3,7 @@ import { Alert, Button, Card, Col, Row, Table } from 'react-bootstrap'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import CardBadges from '../components/CardBadges'
 import CardImage from '../components/CardImage'
+import TiltCard from '../components/TiltCard'
 import ConfirmModal from '../components/ConfirmModal'
 import ErrorMessage from '../components/ErrorMessage'
 import Loader from '../components/Loader'
@@ -122,7 +123,9 @@ export default function CardDetail() {
 
       <Row className="g-4 mt-1">
         <Col md={5} lg={4}>
-          <CardImage src={card.imageUrl} alt={card.name} className="cv-card-image-lg mx-auto" />
+          <TiltCard className="cv-card-image-lg mx-auto">
+            <CardImage src={card.imageUrl} alt={card.name} />
+          </TiltCard>
         </Col>
         <Col md={7} lg={8}>
           <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-2">
@@ -156,7 +159,7 @@ export default function CardDetail() {
                     <th scope="row" className="text-secondary fw-normal w-50">
                       Valore totale
                     </th>
-                    <td className="fw-bold text-accent fs-5">{formatEuro(totalValue)}</td>
+                    <td className="fw-bold fs-5">{formatEuro(totalValue)}</td>
                   </tr>
                 </tbody>
               </Table>

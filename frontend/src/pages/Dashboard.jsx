@@ -12,7 +12,6 @@ import { formatDate, formatEuro } from '../lib/format'
 
 // Importo con il segno davanti: +12,00 € / −5,00 €
 const signed = (value) => `${value > 0 ? '+' : value < 0 ? '−' : ''}${formatEuro(Math.abs(value))}`
-const toneOf = (value) => (value > 0 ? 'positive' : value < 0 ? 'negative' : undefined)
 
 // Riepilogo della collezione: numeri chiave, ultime transazioni e carte di maggior valore
 export default function Dashboard() {
@@ -80,51 +79,45 @@ export default function Dashboard() {
         </Card>
       ) : (
         <>
-          {/* L'unico numero grande della pagina: quanto vale oggi la collezione */}
-          <Card className="mb-3 cv-hero-stat">
+          {/* In alto le due risposte che contano: quanto vale la collezione e se, tutto compreso, ci stai guadagnando */}
+          <Card className="mb-3 cv-hero-stat cv-holo-border">
             <Card.Body className="p-4">
-              <div className="text-secondary mb-1">Valore della collezione</div>
-              <div className="cv-hero-value">{formatEuro(stats.inventoryValue)}</div>
-              <div className="small text-secondary mt-1">
-                {stats.distinctCards} {stats.distinctCards === 1 ? 'carta' : 'carte'} · {stats.totalCopies}{' '}
-                {stats.totalCopies === 1 ? 'copia' : 'copie'} · valore stimato × copie possedute
-              </div>
+              <Row className="g-4 align-items-end">
+                <Col md={7}>
+                  <div className="text-secondary mb-1">Valore della collezione</div>
+                  <div className="cv-hero-value cv-holo-text">{formatEuro(stats.inventoryValue)}</div>
+                  <div className="small text-secondary mt-1">
+                    {stats.distinctCards} {stats.distinctCards === 1 ? 'carta' : 'carte'} · {stats.totalCopies}{' '}
+                    {stats.totalCopies === 1 ? 'copia' : 'copie'} · valore stimato × copie possedute
+                  </div>
+                </Col>
+                <Col md={5} className="cv-hero-side">
+                  <div className="text-secondary mb-1">Guadagno complessivo</div>
+                  <div className="cv-stat-value fs-2">{signed(balance)}</div>
+                  <div
+                    className={`small mt-1 ${balance > 0 ? 'cv-tone-positive' : balance < 0 ? 'cv-tone-negative' : 'text-secondary'}`}
+                  >
+                    {balance > 0 ? '▲ sei in guadagno' : balance < 0 ? '▼ sei in perdita' : 'in pari'}
+                    <span className="text-secondary"> · valore delle carte + incassato − speso</span>
+                  </div>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
 
-          <Row xs={2} lg={4} className="g-3 mb-4">
+          {/* I movimenti di denaro: dati neutri, il giudizio lo dà il guadagno complessivo qui sopra */}
+          <Row xs={1} sm={3} className="g-3 mb-4">
             <Col>
-              <StatTile label="Spesa totale" value={formatEuro(stats.totalSpent)} detail="somma degli acquisti" />
+              <StatTile label="Speso" value={formatEuro(stats.totalSpent)} detail="totale degli acquisti" />
             </Col>
             <Col>
-              <StatTile label="Ricavi" value={formatEuro(stats.totalRevenue)} detail="somma delle vendite" />
+              <StatTile label="Incassato" value={formatEuro(stats.totalRevenue)} detail="totale delle vendite" />
             </Col>
             <Col>
               <StatTile
-                label="Margine"
+                label="Saldo di cassa"
                 value={signed(margin)}
-                tone={toneOf(margin)}
-                detail={
-                  margin > 0
-                    ? '▲ in attivo · ricavi − spesa'
-                    : margin < 0
-                      ? '▼ in passivo · ricavi − spesa'
-                      : 'ricavi − spesa'
-                }
-              />
-            </Col>
-            <Col>
-              <StatTile
-                label="Bilancio complessivo"
-                value={signed(balance)}
-                tone={toneOf(balance)}
-                detail={
-                  balance > 0
-                    ? '▲ in guadagno · valore + ricavi − spesa'
-                    : balance < 0
-                      ? '▼ in perdita · valore + ricavi − spesa'
-                      : 'valore + ricavi − spesa'
-                }
+                detail="incassato − speso, senza contare le carte che hai ancora"
               />
             </Col>
           </Row>

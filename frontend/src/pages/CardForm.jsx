@@ -474,7 +474,7 @@ export default function CardForm() {
                                 {form.buyPrice !== '' && Number(form.quantity) > 0 && (
                                   <Col xs={12} className="small text-secondary">
                                     Spesa registrata: {form.quantity} × {formatEuro(form.buyPrice)} ={' '}
-                                    <strong className="text-accent">
+                                    <strong>
                                       {formatEuro(Number(form.quantity) * Number(form.buyPrice))}
                                     </strong>
                                   </Col>

@@ -1,18 +1,24 @@
-/* Tema scuro "collezionista" sopra il tema dark di Bootstrap.
-   Per cambiare stile basta toccare le variabili qui sotto */
+/* Tema "Holo premium": scuro e profondo, con i riflessi olografici delle carte rare come motivo.
+   Per cambiare stile basta toccare le variabili qui sotto. Contrasti verificati (minimo WCAG 4,5:1):
+   testo 15:1, testo secondario 7:1, giallo 11:1, colori olografici da 8:1 in su sulle card */
 :root,
 [data-bs-theme='dark'] {
-  --cv-bg: #0d1321;
-  --cv-surface: #151d2e;
-  --cv-surface-2: #1c2639;
-  --cv-border: #2a3650;
-  --cv-accent: #ffcb05; /* giallo Pokémon */
+  --cv-bg: #0a0e1a;
+  --cv-surface: #121a2c;
+  --cv-surface-2: #1a2338;
+  --cv-border: #263049;
+  --cv-border-soft: rgba(255, 255, 255, 0.07);
+  --cv-accent: #ffcb05; /* giallo Pokémon: azioni principali */
   --cv-accent-hover: #ffd83d;
-  --cv-blue: #3d7dca;
-  --cv-text: #e8ecf4;
-  --cv-muted: #8b97ad;
+  --cv-text: #eef1f8;
+  --cv-muted: #9aa6be;
   --cv-success: #3ecf8e;
-  --cv-danger: #ff6b6b;
+  --cv-danger: #ff7a7a;
+  /* Riflesso olografico: i colori pastello delle carte holo, tutti leggibili sullo sfondo scuro */
+  --cv-holo: linear-gradient(110deg, #ff9ad5, #c7a6ff 25%, #8fd3ff 50%, #8ff5d8 72%, #ffe68a 100%);
+  --cv-font-display: 'Sora', system-ui, sans-serif;
+  --cv-font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --cv-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   --bs-body-bg: var(--cv-bg);
   --bs-body-color: var(--cv-text);
@@ -27,25 +33,57 @@
   --bs-danger: var(--cv-danger);
   /* Le classi bg-success / bg-danger usano la versione RGB: stessi colori del tema, leggibili su sfondo scuro */
   --bs-success-rgb: 62, 207, 142;
-  --bs-danger-rgb: 255, 107, 107;
-  --bs-body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bs-danger-rgb: 255, 122, 122;
+  --bs-body-font-family: var(--cv-font-body);
+  --bs-border-radius: 0.6rem;
 }
 
+/* Sfondo: aloni viola e ciano come la luce che si riflette su una carta rara */
 body {
   min-height: 100vh;
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(61, 125, 202, 0.18), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgba(255, 203, 5, 0.08), transparent 60%),
-    var(--cv-bg);
+    radial-gradient(900px 520px at 0% -8%, rgba(150, 110, 255, 0.2), transparent 62%),
+    radial-gradient(800px 480px at 105% 4%, rgba(80, 200, 255, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 50% 110%, rgba(255, 120, 200, 0.07), transparent 60%), var(--cv-bg);
   background-attachment: fixed;
 }
 
-h1, h2, h3, h4, h5, .navbar-brand, .display-font {
-  font-family: 'Outfit', var(--bs-body-font-family);
-  letter-spacing: -0.01em;
+::selection {
+  background: rgba(199, 166, 255, 0.35);
+  color: #fff;
 }
 
-/* Bottone principale giallo con testo scuro */
+/* Testo secondario: Bootstrap usa il suo grigio (#6c757d, contrasto 3,6:1 sulle card) e non la variabile del tema.
+   Forziamo il grigio del tema (7:1) */
+.text-secondary {
+  color: var(--cv-muted) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+.navbar-brand,
+.display-font {
+  font-family: var(--cv-font-display);
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+/* Bottone principale giallo con testo scuro; al passaggio un alone caldo */
+.btn {
+  --bs-btn-border-radius: 0.7rem;
+  font-weight: 600;
+  transition:
+    transform 0.2s var(--cv-ease-out),
+    box-shadow 0.2s var(--cv-ease-out),
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
 .btn-primary {
   --bs-btn-bg: var(--cv-accent);
   --bs-btn-border-color: var(--cv-accent);
@@ -59,12 +97,17 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   --bs-btn-disabled-bg: var(--cv-accent);
   --bs-btn-disabled-border-color: var(--cv-accent);
   --bs-btn-disabled-color: #14181f;
-  font-weight: 600;
+  box-shadow: 0 6px 18px -10px rgba(255, 203, 5, 0.7);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px -10px rgba(255, 203, 5, 0.85);
 }
 
 .btn-outline-primary {
   --bs-btn-color: var(--cv-accent);
-  --bs-btn-border-color: var(--cv-accent);
+  --bs-btn-border-color: rgba(255, 203, 5, 0.6);
   --bs-btn-hover-bg: var(--cv-accent);
   --bs-btn-hover-border-color: var(--cv-accent);
   --bs-btn-hover-color: #14181f;
@@ -72,38 +115,109 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   --bs-btn-active-color: #14181f;
 }
 
+/* Condizione della carta: sigla (NM, EX...) in un contorno neutro, il nome completo nel filtro e al passaggio del mouse */
+.cv-badge-condition {
+  background-color: transparent;
+  border: 1px solid var(--cv-muted);
+  color: var(--cv-text);
+  letter-spacing: 0.03em;
+}
+
+/* Carte gradate (PSA 10, CGC 9.5): l'etichetta ha il riflesso olografico, come la custodia di una carta di valore */
+.cv-badge-graded {
+  background: var(--cv-holo);
+  color: #14181f;
+  font-weight: 700;
+}
+
 .text-accent {
   color: var(--cv-accent) !important;
 }
 
-/* Superfici: card, modali, menu */
+/* Testo olografico: per pochi punti chiave (titolo della landing, valore della collezione) */
+.cv-holo-text {
+  background: var(--cv-holo);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: cv-holo-shift 8s ease-in-out infinite alternate;
+}
+
+@keyframes cv-holo-shift {
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+/* Bordo olografico sottile: riquadri in evidenza (valore della collezione, ricerca della landing) */
+.cv-holo-border {
+  position: relative;
+  border-color: transparent !important;
+}
+
+.cv-holo-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--cv-holo);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Superfici: card, modali, menu. Un velo di luce in alto e un'ombra morbida danno profondità */
 .card,
 .modal-content,
 .dropdown-menu {
   --bs-card-bg: var(--cv-surface);
-  --bs-card-border-color: var(--cv-border);
+  --bs-card-border-color: var(--cv-border-soft);
   --bs-modal-bg: var(--cv-surface);
   --bs-dropdown-bg: var(--cv-surface-2);
-  border-color: var(--cv-border);
+  border-color: var(--cv-border-soft);
 }
 
 .card {
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.6);
+  border-radius: 1.1rem;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 40%);
+  box-shadow: 0 18px 40px -26px rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+  border-radius: 1.1rem;
 }
 
 .form-control,
 .form-select {
-  background-color: var(--cv-surface-2);
+  background-color: rgba(255, 255, 255, 0.04);
   border-color: var(--cv-border);
+}
+
+.form-control::placeholder {
+  color: var(--cv-muted);
+  opacity: 0.85;
 }
 
 .form-control:focus,
 .form-select:focus {
-  background-color: var(--cv-surface-2);
+  background-color: rgba(255, 255, 255, 0.06);
   color: var(--cv-text);
-  border-color: var(--cv-accent);
-  box-shadow: 0 0 0 0.2rem rgba(255, 203, 5, 0.2);
+  border-color: rgba(255, 203, 5, 0.8);
+  box-shadow: 0 0 0 0.25rem rgba(255, 203, 5, 0.15);
+}
+
+.form-select option {
+  background-color: var(--cv-surface-2);
 }
 
 .form-check-input:checked {
@@ -111,11 +225,25 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   border-color: var(--cv-accent);
 }
 
-/* Navbar semitrasparente che resta in alto */
+/* Focus da tastiera ben visibile su link e bottoni */
+a:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--cv-accent);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Navbar in vetro sfocato che resta in alto */
 .cv-navbar {
-  background-color: rgba(13, 19, 33, 0.85);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--cv-border);
+  background-color: rgba(10, 14, 26, 0.72);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--cv-border-soft);
+}
+
+.cv-navbar .nav-link {
+  font-weight: 500;
 }
 
 .cv-navbar .nav-link.active {
@@ -124,6 +252,33 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
 
 .cv-logo {
   color: var(--cv-accent);
+  filter: drop-shadow(0 0 10px rgba(255, 203, 5, 0.35));
+}
+
+/* Carta che si inclina un poco seguendo il mouse, come quando la giri in mano.
+   Le variabili --rx/--ry (inclinazione) le aggiorna il componente TiltCard */
+.cv-tilt {
+  position: relative;
+  border-radius: 0.6rem;
+  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.35s var(--cv-ease-out);
+  will-change: transform;
+}
+
+/* Nella griglia dell'inventario l'immagine sta sopra il link "allungato" della card, così riceve il mouse */
+.cv-tilt-front {
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-tilt {
+    transform: none;
+    transition: none;
+  }
+
+  .cv-holo-text {
+    animation: none;
+  }
 }
 
 /* Immagine della carta in proporzione reale (63 x 88 mm) */
@@ -148,7 +303,13 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   justify-content: center;
   gap: 0.25rem;
   color: var(--cv-muted);
-  background: repeating-linear-gradient(45deg, var(--cv-surface-2), var(--cv-surface-2) 10px, var(--cv-surface) 10px, var(--cv-surface) 20px);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--cv-surface-2),
+    var(--cv-surface-2) 10px,
+    var(--cv-surface) 10px,
+    var(--cv-surface) 20px
+  );
 }
 
 .cv-card-placeholder span {
@@ -158,12 +319,16 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
 
 /* Le carte della griglia si alzano un po' al passaggio del mouse */
 .cv-card-item {
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition:
+    transform 0.25s var(--cv-ease-out),
+    border-color 0.2s ease,
+    box-shadow 0.25s var(--cv-ease-out);
 }
 
 .cv-card-item:hover {
-  transform: translateY(-3px);
-  border-color: var(--cv-accent);
+  transform: translateY(-4px);
+  border-color: rgba(199, 166, 255, 0.45);
+  box-shadow: 0 22px 44px -24px rgba(150, 110, 255, 0.55);
 }
 
 /* Carte vendute del tutto: restano visibili (con il filtro) ma sbiadite */
@@ -310,19 +475,40 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
 
 /* Dashboard: un solo numero grande (valore della collezione) e riquadri più piccoli */
 .cv-hero-stat {
-  border-left: 4px solid var(--cv-accent);
+  background-color: var(--cv-surface-2);
+}
+
+/* Il guadagno complessivo, separato dal valore da una linea sottile (sopra su telefono, a sinistra da tablet in su) */
+.cv-hero-side {
+  border-top: 1px solid var(--cv-border);
+  padding-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .cv-hero-side {
+    border-top: 0;
+    border-left: 1px solid var(--cv-border);
+    padding-top: 0;
+    padding-left: 1.5rem;
+  }
 }
 
 .cv-hero-value {
-  font-size: clamp(2.5rem, 7vw, 3.5rem);
-  font-weight: 700;
-  line-height: 1.1;
+  font-family: var(--cv-font-display);
+  font-size: clamp(2.6rem, 7vw, 3.8rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
 }
 
 .cv-stat-value {
+  font-family: var(--cv-font-display);
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Colore della riga di dettaglio di margine e bilancio (sempre insieme a segno, freccia e parola) */
@@ -355,19 +541,23 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   display: block;
   height: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--cv-border);
-  border-radius: 0.75rem;
+  border: 1px solid var(--cv-border-soft);
+  border-radius: 1rem;
   background-color: var(--cv-surface);
   color: inherit;
   text-align: center;
   text-decoration: none;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition:
+    transform 0.25s var(--cv-ease-out),
+    border-color 0.2s ease,
+    box-shadow 0.25s var(--cv-ease-out);
 }
 
 .cv-set-tile:hover,
 .cv-set-tile:focus-visible {
-  transform: translateY(-3px);
-  border-color: var(--cv-accent);
+  transform: translateY(-4px);
+  border-color: rgba(199, 166, 255, 0.45);
+  box-shadow: 0 22px 44px -24px rgba(150, 110, 255, 0.55);
   color: inherit;
 }
 
@@ -427,57 +617,61 @@ h1, h2, h3, h4, h5, .navbar-brand, .display-font {
   border-color: var(--cv-accent);
   color: #14181f;
   font-weight: 600;
+  box-shadow: 0 6px 18px -10px rgba(255, 203, 5, 0.7);
 }
 
+/* Il riquadro di ricerca si distingue per il bordo olografico (cv-holo-border), senza aloni aggiunti */
 .cv-landing-search {
-  border-color: var(--cv-accent);
+  background-color: var(--cv-surface);
 }
 
-/* Landing: ventaglio di tre carte disegnate in CSS */
+/* Landing: ventaglio di tre carte vere (immagini di TCGdex) */
 .cv-hero-cards {
   position: relative;
-  height: 380px;
+  height: 400px;
 }
 
 .cv-hero-card {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 210px;
-  height: 294px; /* proporzione di una carta vera, 63 x 88 mm */
-  margin: -147px 0 0 -105px;
-  border-radius: 14px;
-  border: 6px solid #f3d36b;
-  box-shadow: 0 25px 50px -20px rgba(0, 0, 0, 0.8);
-  transition: transform 0.4s ease;
+  width: 220px;
+  aspect-ratio: 63 / 88; /* proporzione di una carta vera, 63 x 88 mm */
+  margin: -154px 0 0 -110px;
+  border-radius: 12px;
+  object-fit: cover;
+  background-color: var(--cv-surface-2);
+  box-shadow: 0 30px 50px -22px rgba(0, 0, 0, 0.85);
+  transition: transform 0.5s var(--cv-ease-out);
 }
 
 .cv-hero-card-1 {
-  background: linear-gradient(135deg, #3d7dca, #1d3f7a);
-  transform: translateX(-120px) rotate(-14deg);
+  transform: translateX(-130px) rotate(-12deg);
 }
 
 .cv-hero-card-2 {
-  background: linear-gradient(135deg, #e5533d, #8c1f12);
-  transform: translateX(120px) rotate(14deg);
+  transform: translateX(130px) rotate(12deg);
 }
 
 .cv-hero-card-3 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 45%, transparent 60%),
-    linear-gradient(135deg, #ffcb05, #c79a00);
-  color: #0d1321;
-  font-size: 5rem;
-  transform: translateY(-10px);
+  z-index: 1;
+  transform: translateY(-12px);
 }
 
 .cv-hero-cards:hover .cv-hero-card-1 {
-  transform: translateX(-150px) rotate(-18deg);
+  transform: translateX(-165px) rotate(-16deg);
 }
 
 .cv-hero-cards:hover .cv-hero-card-2 {
-  transform: translateX(150px) rotate(18deg);
+  transform: translateX(165px) rotate(16deg);
+}
+
+.cv-hero-cards:hover .cv-hero-card-3 {
+  transform: translateY(-22px) scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-hero-card {
+    transition: none;
+  }
 }

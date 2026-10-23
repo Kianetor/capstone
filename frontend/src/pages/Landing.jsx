@@ -5,6 +5,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import SetTile from '../components/SetTile'
 import { api } from '../lib/api'
 
+// Tre carte famose per il ventaglio della pagina iniziale (immagini di TCGdex): ai lati Lugia e Umbreon, al centro Charizard
+const HERO_CARDS = [
+  'https://assets.tcgdex.net/en/neo/neo1/9/high.webp',
+  'https://assets.tcgdex.net/en/swsh/swsh7/215/high.webp',
+  'https://assets.tcgdex.net/en/base/base1/4/high.webp',
+]
+
 const FEATURES = [
   {
     icon: '🗂️',
@@ -45,17 +52,14 @@ export default function Landing() {
 
   return (
     <>
-      <Row className="align-items-center g-5 py-md-5">
+      <Row className="align-items-center g-4 g-lg-5 py-md-5">
         <Col lg={6} className="text-center text-lg-start">
-          <span className="badge rounded-pill text-bg-dark border mb-3 px-3 py-2 fw-normal">
-            Il gestionale per collezionisti di carte Pokémon
-          </span>
           <h1 className="display-4 fw-bold mb-3">
-            La tua collezione, <span className="text-accent">sotto controllo</span>.
+            La tua collezione, <span className="cv-holo-text">sotto controllo</span>.
           </h1>
           <p className="lead text-secondary mb-4">
-            Tieni traccia di ogni carta, di quanto hai speso e di quanto vale oggi la tua collezione. Tutto in un unico
-            posto, dal telefono o dal computer.
+            Tieni traccia di ogni carta Pokémon, di quanto hai speso e di quanto vale oggi la tua collezione. Tutto in
+            un unico posto, dal telefono o dal computer.
           </p>
           <div className="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
             {user ? (
@@ -76,16 +80,14 @@ export default function Landing() {
         </Col>
         <Col lg={6} className="d-none d-md-block">
           <div className="cv-hero-cards" aria-hidden="true">
-            <div className="cv-hero-card cv-hero-card-1" />
-            <div className="cv-hero-card cv-hero-card-2" />
-            <div className="cv-hero-card cv-hero-card-3">
-              <span>★</span>
-            </div>
+            {HERO_CARDS.map((src, i) => (
+              <img key={src} src={src} alt="" className={`cv-hero-card cv-hero-card-${i + 1}`} />
+            ))}
           </div>
         </Col>
       </Row>
 
-      <Card className="my-4 cv-landing-search">
+      <Card className="my-4 cv-landing-search cv-holo-border">
         <Card.Body className="p-4 p-md-5 text-center">
           <h2 className="h3 mb-2">Cerca una carta</h2>
           <p className="text-secondary mb-4">

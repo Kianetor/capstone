@@ -203,7 +203,7 @@ export default function TransactionModal({ show, card, defaultType = 'BUY', onHi
 
           <div className="d-flex justify-content-between align-items-center mt-4 p-3 rounded cv-total-box">
             <span className="text-secondary">Totale</span>
-            <span className="fs-4 fw-bold text-accent">{Number.isFinite(total) ? formatEuro(total) : '—'}</span>
+            <span className="fs-4 fw-bold">{Number.isFinite(total) ? formatEuro(total) : '—'}</span>
           </div>
 
           {saveError && !Object.values(errors).some(Boolean) && (

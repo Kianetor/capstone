@@ -3,6 +3,7 @@ import { Button, Card, Col, Row, Table } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import CardImage from '../components/CardImage'
+import TiltCard from '../components/TiltCard'
 import ErrorMessage from '../components/ErrorMessage'
 import Loader from '../components/Loader'
 import { api } from '../lib/api'
@@ -50,7 +51,16 @@ export default function ExploreCard() {
   const addToCollection = () => navigate('/cards/new', { state: { external: { id: card.externalId, lang } } })
 
   const details = [
-    ['Set', card.setName ? <Link key="set" to={setLink}>{card.setName}</Link> : '—'],
+    [
+      'Set',
+      card.setName ? (
+        <Link key="set" to={setLink}>
+          {card.setName}
+        </Link>
+      ) : (
+        '—'
+      ),
+    ],
     ['Numero', card.cardNumber ?? '—'],
     ['Rarità', card.rarity ?? '—'],
     ['Lingua', CATALOG_LANGUAGES.find((l) => l.code === lang)?.label ?? lang],
@@ -64,7 +74,9 @@ export default function ExploreCard() {
 
       <Row className="g-4 mt-1">
         <Col md={5} lg={4}>
-          <CardImage src={card.imageUrl} alt={card.name} className="cv-card-image-lg mx-auto" />
+          <TiltCard className="cv-card-image-lg mx-auto">
+            <CardImage src={card.imageUrl} alt={card.name} />
+          </TiltCard>
         </Col>
         <Col md={7} lg={8}>
           <h1 className="h2 mb-3">{card.name}</h1>

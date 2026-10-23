@@ -63,7 +63,7 @@ export default function FilterBar() {
             <option value="">Ogni condizione</option>
             {CONDITIONS.map((c) => (
               <option key={c.value} value={c.value}>
-                {c.label}
+                {c.label} ({c.short})
               </option>
             ))}
           </Form.Select>

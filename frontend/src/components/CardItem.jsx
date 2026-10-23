@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { formatEuro } from '../lib/format'
 import CardBadges from './CardBadges'
 import CardImage from './CardImage'
+import TiltCard from './TiltCard'
 
 // Una carta nella griglia dell'inventario: tutta la card porta al dettaglio.
 // Con 0 copie (vendute tutte) è sbiadita e ha l'etichetta "Venduta"
@@ -12,7 +13,9 @@ export default function CardItem({ card }) {
     <Card className={`h-100 cv-card-item ${sold ? 'cv-card-sold' : ''}`}>
       <Card.Body className="p-2 p-sm-3 d-flex flex-column">
         <div className="position-relative mb-3">
-          <CardImage src={card.imageUrl} alt={card.name} />
+          <TiltCard to={`/cards/${card.id}`}>
+            <CardImage src={card.imageUrl} alt={card.name} />
+          </TiltCard>
           {sold && (
             <Badge bg="dark" className="position-absolute top-0 start-0 m-1 border">
               Venduta
@@ -30,7 +33,7 @@ export default function CardItem({ card }) {
         <CardBadges card={card} />
         <div className="d-flex justify-content-between align-items-end mt-auto pt-3 small">
           <span className="text-secondary">×{card.quantity}</span>
-          <span className="fw-semibold text-accent">{formatEuro(card.estimatedValue)}</span>
+          <span className="fw-bold">{formatEuro(card.estimatedValue)}</span>
         </div>
       </Card.Body>
     </Card>
