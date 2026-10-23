@@ -417,6 +417,79 @@ a:focus-visible,
   }
 }
 
+/* Grafici della pagina della carta (SVG disegnati a mano): griglia appena visibile, testi grigi,
+   colori solo sui segni. Acquisti blu e vendite verdi, verificati anche per il daltonismo */
+.cv-chart {
+  --cv-chart-buy: #5b8def;
+  --cv-chart-sell: #25a873;
+}
+
+.cv-chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.cv-chart-grid {
+  stroke: var(--cv-border-soft);
+  stroke-width: 1;
+}
+
+.cv-chart-ref {
+  stroke: var(--cv-muted);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+
+.cv-chart-tick {
+  font-size: 11px;
+  fill: var(--cv-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cv-chart-value {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--cv-text);
+}
+
+.cv-chart-bar {
+  fill: var(--cv-accent);
+  transition: opacity 0.15s;
+}
+
+.cv-chart-buy {
+  fill: var(--cv-chart-buy);
+}
+
+.cv-chart-sell {
+  fill: var(--cv-chart-sell);
+}
+
+/* Anello del colore dello sfondo: i punti restano leggibili anche quando si sovrappongono */
+.cv-chart-ring {
+  stroke: var(--cv-surface);
+  stroke-width: 2;
+}
+
+.cv-chart-value-line {
+  stroke: var(--cv-accent);
+  stroke-width: 2;
+  opacity: 0.8;
+}
+
+.cv-chart-tooltip {
+  position: absolute;
+  z-index: 5;
+  transform: translate(-50%, calc(-100% - 14px));
+  padding: 0.4rem 0.7rem;
+  white-space: nowrap;
+  pointer-events: none;
+  background-color: var(--cv-surface-2);
+  border: 1px solid var(--cv-border);
+  border-radius: 0.6rem;
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.8);
+}
+
 .cv-logo {
   color: var(--cv-accent);
   filter: drop-shadow(0 0 10px rgba(255, 203, 5, 0.35));
@@ -630,6 +703,13 @@ a:focus-visible,
 /* Dettaglio carta: immagine grande e tabella dei dati */
 .cv-card-image-lg {
   max-width: 360px;
+}
+
+/* Telefono: carta più piccola, così nome e grafici si vedono senza scorrere troppo */
+@media (max-width: 767.98px) {
+  .cv-card-image-lg {
+    max-width: 200px;
+  }
 }
 
 /* Scorrendo fino a un elemento, lasciamo spazio per la navbar fissa in alto */

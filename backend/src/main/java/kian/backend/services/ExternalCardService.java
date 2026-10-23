@@ -428,7 +428,7 @@ public class ExternalCardService {
         String setName = card.set() != null ? setName(language, card.set().id(), card.set().name()) : null;
         return new ExternalCardDetail(card.id(), cardName(language, card.name(), card.localId()), setName,
                 cardNumber(card), card.rarity(),
-                image(card.image(), "high"), marketPrice(card));
+                image(card.image(), "high"), marketPrice(card), marketPrices(card));
     }
 
     private static String checkLanguage(String lang) {
@@ -466,6 +466,25 @@ public class ExternalCardService {
             }
         }
         return null;
+    }
+
+    // Le medie di Cardmarket per il grafico della pagina della carta (stessi campi non "-holo" di marketPrice)
+    private static ExternalCardDetail.MarketPrices marketPrices(TcgdexCard card) {
+        if (card.pricing() == null || card.pricing().cardmarket() == null) {
+            return null;
+        }
+        Map<String, Object> cardmarket = card.pricing().cardmarket();
+        ExternalCardDetail.MarketPrices prices = new ExternalCardDetail.MarketPrices(euro(cardmarket.get("avg30")),
+                euro(cardmarket.get("avg7")), euro(cardmarket.get("avg1")), euro(cardmarket.get("low")),
+                cardmarket.get("updated") instanceof String updated ? date(updated) : null);
+        boolean empty = prices.avg30() == null && prices.avg7() == null && prices.avg1() == null;
+        return empty ? null : prices;
+    }
+
+    private static BigDecimal euro(Object value) {
+        return value instanceof Number n && n.doubleValue() > 0
+                ? BigDecimal.valueOf(n.doubleValue()).setScale(2, RoundingMode.HALF_UP)
+                : null;
     }
 
     // Solo i campi della risposta di TCGdex che ci servono

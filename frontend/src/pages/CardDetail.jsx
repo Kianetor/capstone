@@ -7,10 +7,12 @@ import TiltCard from '../components/TiltCard'
 import ConfirmModal from '../components/ConfirmModal'
 import ErrorMessage from '../components/ErrorMessage'
 import Loader from '../components/Loader'
+import MarketPriceChart from '../components/MarketPriceChart'
+import TransactionChart from '../components/TransactionChart'
 import TransactionModal from '../components/TransactionModal'
 import TransactionTypeBadge from '../components/TransactionTypeBadge'
 import { api } from '../lib/api'
-import { condition, formatDate, formatEuro, languageLabel } from '../lib/format'
+import { condition, formatDate, formatEuro, languageLabel, tcgdexLanguage } from '../lib/format'
 
 export default function CardDetail() {
   const { id } = useParams()
@@ -29,6 +31,8 @@ export default function CardDetail() {
   const [undoing, setUndoing] = useState(false)
   const [undoError, setUndoError] = useState(null)
   const [notice, setNotice] = useState(null)
+  // Prezzi di Cardmarket per il grafico: solo per le carte aggiunte dal catalogo (con l'id di TCGdex)
+  const [market, setMarket] = useState(null)
 
   const load = useCallback(
     () =>
@@ -42,6 +46,21 @@ export default function CardDetail() {
   useEffect(() => {
     load()
   }, [load])
+
+  const externalId = data?.card.externalId
+  const language = data?.card.language
+  useEffect(() => {
+    if (!externalId) return
+    let current = true
+    // Se il catalogo non risponde il grafico del mercato semplicemente non compare
+    api
+      .externalCard(externalId, tcgdexLanguage(language))
+      .then((c) => current && setMarket(c.market))
+      .catch(() => current && setMarket(null))
+    return () => {
+      current = false
+    }
+  }, [externalId, language])
 
   const retry = () => {
     setError(null)
@@ -143,7 +162,33 @@ export default function CardDetail() {
             </div>
           </div>
 
-          <Card className="mt-4">
+          {/* Grafici in alto, subito sotto il nome: si vedono senza scorrere la pagina */}
+          {(transactions.length > 0 || market) && (
+            <Row xs={1} xl={transactions.length > 0 && market ? 2 : 1} className="g-3 mt-2">
+              {transactions.length > 0 && (
+                <Col>
+                  <Card className="h-100">
+                    <Card.Body>
+                      <h2 className="h6 mb-3">I tuoi acquisti e vendite (prezzo per copia)</h2>
+                      <TransactionChart transactions={transactions} estimatedValue={card.estimatedValue} />
+                    </Card.Body>
+                  </Card>
+                </Col>
+              )}
+              {market && (
+                <Col>
+                  <Card className="h-100">
+                    <Card.Body>
+                      <h2 className="h6 mb-3">Prezzo su Cardmarket</h2>
+                      <MarketPriceChart market={market} />
+                    </Card.Body>
+                  </Card>
+                </Col>
+              )}
+            </Row>
+          )}
+
+          <Card className="mt-3">
             <Card.Body className="p-0">
               <Table className="mb-0 cv-details-table" borderless>
                 <tbody>

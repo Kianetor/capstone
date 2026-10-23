@@ -6,6 +6,7 @@ import CardImage from '../components/CardImage'
 import TiltCard from '../components/TiltCard'
 import ErrorMessage from '../components/ErrorMessage'
 import Loader from '../components/Loader'
+import MarketPriceChart from '../components/MarketPriceChart'
 import { api } from '../lib/api'
 import { CATALOG_LANGUAGES, formatEuro } from '../lib/format'
 
@@ -92,6 +93,15 @@ export default function ExploreCard() {
               </div>
             </Card.Body>
           </Card>
+
+          {card.market && (
+            <Card className="mb-3">
+              <Card.Body>
+                <h2 className="h6 mb-3">Andamento del prezzo su Cardmarket</h2>
+                <MarketPriceChart market={card.market} />
+              </Card.Body>
+            </Card>
+          )}
 
           <Card className="mb-3">
             <Card.Body className="p-0">
