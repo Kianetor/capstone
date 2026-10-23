@@ -15,8 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 
 import static kian.backend.services.SearchUtils.blankToNull;
 
@@ -47,6 +48,41 @@ public class CardService {
         Pageable request = SearchUtils.withSort(pageable, SORTABLE, DEFAULT_SORT);
         return PageResponse.of(cardRepository.findAll(CardSpecifications.of(userId, params), request)
                 .map(CardResponse::of));
+    }
+
+    // Inventario con le copie della stessa carta raggruppate. Le carte di un utente sono poche centinaia:
+    // le carichiamo tutte già filtrate e ordinate, le raggruppiamo e poi prendiamo la pagina richiesta.
+    // Un gruppo prende il posto della sua prima carta nell'ordine scelto
+    @Transactional(readOnly = true)
+    public PageResponse<CardGroupResponse> searchGroups(UUID userId, CardSearchParams params, Pageable pageable) {
+        Sort sort = SearchUtils.withSort(pageable, SORTABLE, DEFAULT_SORT).getSort();
+        Map<String, List<Card>> groups = new LinkedHashMap<>();
+        for (Card card : cardRepository.findAll(CardSpecifications.of(userId, params), sort)) {
+            groups.computeIfAbsent(groupKey(card), k -> new ArrayList<>()).add(card);
+        }
+
+        List<Map.Entry<String, List<Card>>> all = new ArrayList<>(groups.entrySet());
+        // "Più copie" conta tutte le copie del gruppo, non solo quelle della prima versione
+        Sort.Order byQuantity = sort.getOrderFor("quantity");
+        if (byQuantity != null) {
+            Comparator<Map.Entry<String, List<Card>>> total =
+                    Comparator.comparingInt(e -> e.getValue().stream().mapToInt(Card::getQuantity).sum());
+            all.sort(byQuantity.isAscending() ? total : total.reversed());
+        }
+
+        int size = pageable.getPageSize();
+        int from = Math.min((int) pageable.getOffset(), all.size());
+        List<Map.Entry<String, List<Card>>> page = all.subList(from, Math.min(from + size, all.size()));
+
+        Map<UUID, BigDecimal> purchasePrices = averagePurchasePrices(page.stream()
+                .flatMap(e -> e.getValue().stream())
+                .map(Card::getId)
+                .toList());
+        List<CardGroupResponse> content = page.stream()
+                .map(e -> toGroup(e.getKey(), e.getValue(), purchasePrices))
+                .toList();
+        int totalPages = (groups.size() + size - 1) / size;
+        return new PageResponse<>(content, pageable.getPageNumber(), size, groups.size(), totalPages);
     }
 
     @Transactional(readOnly = true)
@@ -110,6 +146,42 @@ public class CardService {
     Card findOwned(UUID userId, UUID cardId) {
         return cardRepository.findByIdAndUserId(cardId, userId)
                 .orElseThrow(() -> new NotFoundException("Carta non trovata"));
+    }
+
+    // Stessa carta = stesso id del catalogo; per quelle inserite a mano, stesso nome, set e numero
+    private static String groupKey(Card card) {
+        if (card.getExternalId() != null) {
+            return card.getExternalId();
+        }
+        return String.join("|", card.getName(), Objects.toString(card.getSetName(), ""),
+                Objects.toString(card.getCardNumber(), "")).toLowerCase(Locale.ROOT);
+    }
+
+    private static CardGroupResponse toGroup(String key, List<Card> cards, Map<UUID, BigDecimal> purchasePrices) {
+        Card first = cards.getFirst();
+        List<BigDecimal> values = cards.stream().map(Card::getEstimatedValue).filter(Objects::nonNull).toList();
+        return new CardGroupResponse(key, first.getName(), first.getSetName(), first.getCardNumber(),
+                cards.stream().map(Card::getImageUrl).filter(Objects::nonNull).findFirst().orElse(null),
+                cards.stream().mapToInt(Card::getQuantity).sum(),
+                values.stream().min(Comparator.naturalOrder()).orElse(null),
+                values.stream().max(Comparator.naturalOrder()).orElse(null),
+                cards.stream()
+                        .map(c -> new CardGroupResponse.Variant(CardResponse.of(c), purchasePrices.get(c.getId())))
+                        .toList());
+    }
+
+    // Prezzo medio per copia degli acquisti di ogni carta: spesa totale / copie acquistate
+    private Map<UUID, BigDecimal> averagePurchasePrices(List<UUID> cardIds) {
+        if (cardIds.isEmpty()) {
+            return Map.of();
+        }
+        Map<UUID, BigDecimal> prices = new HashMap<>();
+        for (TransactionRepository.PurchaseTotals t : transactionRepository.purchaseTotals(cardIds)) {
+            if (t.getCopies() > 0) {
+                prices.put(t.getCardId(), t.getSpent().divide(BigDecimal.valueOf(t.getCopies()), 2, RoundingMode.HALF_UP));
+            }
+        }
+        return prices;
     }
 
     private static void apply(Card card, CardRequest r) {

@@ -12,11 +12,12 @@ export const DEFAULT_FILTERS = {
   includeSold: '', // '' = solo le carte possedute, 'true' = anche quelle vendute del tutto (0 copie)
 }
 
-// Carica la pagina corrente con i filtri salvati nello store
+// Carica la pagina corrente con i filtri salvati nello store.
+// Ogni elemento è un gruppo: le copie della stessa carta (anche in condizioni diverse) stanno insieme
 export const fetchCards = createAsyncThunk('cards/fetch', async (_, { getState, rejectWithValue }) => {
   const { filters, page } = getState().cards
   try {
-    return await api.cards({ ...filters, page, size: PAGE_SIZE })
+    return await api.cardGroups({ ...filters, page, size: PAGE_SIZE })
   } catch (e) {
     return rejectWithValue(e.message)
   }

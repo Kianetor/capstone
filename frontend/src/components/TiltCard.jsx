@@ -6,7 +6,7 @@ const MAX_TILT = 8 // gradi di inclinazione massima
 // Carta che si inclina leggermente in 3D seguendo il mouse.
 // Aggiorna solo variabili CSS (niente stato React): il resto lo fa .cv-tilt in index.css.
 // Con il tocco (telefono) non si inclina; con "riduci movimento" attivo l'inclinazione la toglie il CSS
-export default function TiltCard({ children, className = '', to }) {
+export default function TiltCard({ children, className = '', to, onClick }) {
   const ref = useRef(null)
 
   const move = (e) => {
@@ -40,6 +40,23 @@ export default function TiltCard({ children, className = '', to }) {
       >
         {children}
       </Link>
+    )
+  }
+  // Come pulsante: fa la stessa cosa del titolo della carta (es. apre le varianti), quindi niente doppione per la tastiera
+  if (onClick) {
+    return (
+      <div
+        ref={ref}
+        aria-hidden="true"
+        className={`${classes} cv-tilt-front`}
+        role="presentation"
+        style={{ cursor: 'pointer' }}
+        onClick={onClick}
+        onPointerMove={move}
+        onPointerLeave={reset}
+      >
+        {children}
+      </div>
     )
   }
   return (

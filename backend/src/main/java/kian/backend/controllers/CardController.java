@@ -33,6 +33,14 @@ public class CardController {
         return cardService.search(userId(jwt), params, pageable);
     }
 
+    // Stessi filtri di /api/cards, ma le copie della stessa carta arrivano raggruppate
+    @GetMapping("/groups")
+    public PageResponse<CardGroupResponse> searchGroups(@AuthenticationPrincipal Jwt jwt,
+                                                        @ModelAttribute CardSearchParams params,
+                                                        @PageableDefault(size = 12) Pageable pageable) {
+        return cardService.searchGroups(userId(jwt), params, pageable);
+    }
+
     @GetMapping("/{id}")
     public CardDetailResponse detail(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         return cardService.detail(userId(jwt), id);

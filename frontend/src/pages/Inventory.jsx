@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AppPagination from '../components/AppPagination'
 import CardItem from '../components/CardItem'
+import CardVariantsModal from '../components/CardVariantsModal'
 import ErrorMessage from '../components/ErrorMessage'
 import FilterBar from '../components/FilterBar'
 import Loader from '../components/Loader'
@@ -17,6 +18,8 @@ export default function Inventory() {
   // Nome della carta appena aggiunta (arriva dal form): mostriamo la conferma una volta sola
   const [added, setAdded] = useState(location.state?.added ?? null)
   const [purchased] = useState(Boolean(location.state?.purchased))
+  // Carta con più versioni di cui stiamo guardando il confronto
+  const [openGroup, setOpenGroup] = useState(null)
 
   // Togliamo il messaggio dalla cronologia: ricaricando la pagina o tornando indietro non ricompare
   useEffect(() => {
@@ -68,15 +71,17 @@ export default function Inventory() {
         // Durante il cambio pagina lasciamo visibili le carte vecchie, un po' trasparenti
         <div style={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
           <Row xs={3} md={4} lg={5} xl={6} className="g-2 g-sm-3">
-            {items.map((card) => (
-              <Col key={card.id}>
-                <CardItem card={card} />
+            {items.map((group) => (
+              <Col key={group.key}>
+                <CardItem group={group} onOpen={() => setOpenGroup(group)} />
               </Col>
             ))}
           </Row>
           <AppPagination page={page} totalPages={totalPages} onChange={changePage} />
         </div>
       )}
+
+      <CardVariantsModal group={openGroup} onHide={() => setOpenGroup(null)} />
     </>
   )
 }

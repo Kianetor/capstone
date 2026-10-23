@@ -85,6 +85,7 @@ export const api = {
 
   // Carte
   cards: (filters) => request(`/api/cards${query(filters)}`),
+  cardGroups: (filters) => request(`/api/cards/groups${query(filters)}`),
   card: (cardId) => request(`/api/cards/${id(cardId)}`),
   createCard: (data) => request('/api/cards', { method: 'POST', body: data }),
   updateCard: (cardId, data) => request(`/api/cards/${id(cardId)}`, { method: 'PUT', body: data }),

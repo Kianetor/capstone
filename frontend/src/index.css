@@ -404,6 +404,95 @@ a:focus-visible,
   opacity: 0.55;
 }
 
+/* Più versioni della stessa carta: dietro l'immagine si intravedono altre due carte, come un mazzetto */
+.cv-card-stack::before,
+.cv-card-stack::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.6rem;
+  background-color: var(--cv-surface-2);
+  border: 1px solid var(--cv-border);
+}
+
+.cv-card-stack::before {
+  transform: translate(6px, -6px) rotate(3deg);
+}
+
+.cv-card-stack::after {
+  transform: translate(3px, -3px) rotate(1.5deg);
+}
+
+.cv-card-stack > .cv-tilt {
+  z-index: 2;
+}
+
+/* Numero di copie sopra l'immagine (×3) */
+.cv-copies-badge {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  z-index: 3;
+  padding: 0.15rem 0.5rem;
+  font-family: var(--cv-font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #111;
+  background-color: var(--cv-accent);
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* Pulsante che sembra un link (titolo delle carte con più versioni) */
+.cv-link-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  text-align: start;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: none;
+  border: 0;
+}
+
+/* Confronto tra le versioni di una carta */
+.cv-variants-thumb {
+  width: 56px;
+  flex-shrink: 0;
+}
+
+.cv-variant-row + .cv-variant-row {
+  border-top: 1px solid var(--cv-border-soft);
+}
+
+.cv-variant-row a {
+  transition: background-color 0.15s;
+}
+
+.cv-variant-row a:hover {
+  background-color: var(--cv-surface-2);
+}
+
+.cv-variant-prices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.cv-variant-prices dt {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--cv-muted);
+}
+
+.cv-variant-prices dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Telefono: tre carte per riga, quindi testo e spazi più compatti */
 @media (max-width: 575.98px) {
   .cv-card-item {
