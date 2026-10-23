@@ -3,14 +3,36 @@ import { Button, Card, Col, Form, InputGroup, Row } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import SetTile from '../components/SetTile'
+import { pokemonArtwork } from '../lib/format'
 import { api } from '../lib/api'
 
-// Tre carte famose per il ventaglio della pagina iniziale (immagini di TCGdex): ai lati Lugia e Umbreon, al centro Charizard
-const HERO_CARDS = [
-  'https://assets.tcgdex.net/en/neo/neo1/9/high.webp',
-  'https://assets.tcgdex.net/en/swsh/swsh7/215/high.webp',
-  'https://assets.tcgdex.net/en/base/base1/4/high.webp',
+// Anteprima della dashboard nella pagina iniziale: carte e numeri dell'account demo (immagini di TCGdex)
+const PREVIEW_CARDS = [
+  {
+    name: 'Umbreon VMAX',
+    detail: 'Evolving Skies · PSA 10',
+    value: '1.772,15 €',
+    gain: '+422,15 €',
+    image: 'https://assets.tcgdex.net/en/swsh/swsh7/215/low.webp',
+  },
+  {
+    name: 'Lugia',
+    detail: 'Neo Genesis · Good',
+    value: '760,83 €',
+    gain: '+280,83 €',
+    image: 'https://assets.tcgdex.net/en/neo/neo1/9/low.webp',
+  },
+  {
+    name: 'Charizard',
+    detail: 'Base Set · Excellent',
+    value: '682,59 €',
+    gain: '+162,59 €',
+    image: 'https://assets.tcgdex.net/en/base/base1/4/low.webp',
+  },
 ]
+
+// Andamento del valore negli ultimi mesi (illustrativo): punti del grafico da sinistra a destra, da 0 a 1
+const TREND = [0.18, 0.22, 0.2, 0.34, 0.31, 0.45, 0.52, 0.49, 0.63, 0.71, 0.68, 0.86]
 
 const FEATURES = [
   {
@@ -78,12 +100,8 @@ export default function Landing() {
             )}
           </div>
         </Col>
-        <Col lg={6} className="d-none d-md-block">
-          <div className="cv-hero-cards" aria-hidden="true">
-            {HERO_CARDS.map((src, i) => (
-              <img key={src} src={src} alt="" className={`cv-hero-card cv-hero-card-${i + 1}`} />
-            ))}
-          </div>
+        <Col lg={6}>
+          <CollectionPreview />
         </Col>
       </Row>
 
@@ -145,5 +163,64 @@ export default function Landing() {
         ))}
       </Row>
     </>
+  )
+}
+
+// Finta dashboard con i numeri dell'account demo: fa vedere subito cosa fa l'app. Solo decorativa
+function CollectionPreview() {
+  const width = 320
+  const height = 72
+  const points = TREND.map((y, i) => [(i / (TREND.length - 1)) * width, height - y * height])
+  const line = points.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ')
+
+  return (
+    <div className="cv-preview" aria-hidden="true">
+      <div className="cv-preview-panel">
+        <div className="d-flex align-items-center gap-2 mb-3">
+          <span className="cv-avatar" style={{ width: 32, height: 32 }}>
+            <img src={pokemonArtwork(25)} alt="" />
+          </span>
+          <span className="small text-secondary">Collezione di demo</span>
+          <span className="cv-preview-live ms-auto">Prezzi Cardmarket</span>
+        </div>
+        <div className="small text-secondary">Valore della collezione</div>
+        <div className="d-flex align-items-baseline flex-wrap gap-2 mb-2">
+          <span className="cv-preview-value">8.635,32 €</span>
+          <span className="cv-preview-gain">▲ +2.031,82 €</span>
+        </div>
+        <svg viewBox={`0 0 ${width} ${height}`} className="cv-preview-chart" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="cv-preview-fill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor="var(--cv-success)" stopOpacity="0.28" />
+              <stop offset="1" stopColor="var(--cv-success)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={`${line} L${width} ${height} L0 ${height} Z`} fill="url(#cv-preview-fill)" />
+          <path d={line} fill="none" stroke="var(--cv-success)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+        </svg>
+        <ul className="list-unstyled mb-0 mt-3">
+          {PREVIEW_CARDS.map((card) => (
+            <li key={card.name} className="cv-preview-row">
+              <img src={card.image} alt="" className="cv-preview-thumb" />
+              <div className="min-w-0 flex-grow-1">
+                <div className="fw-semibold text-truncate">{card.name}</div>
+                <div className="small text-secondary text-truncate">{card.detail}</div>
+              </div>
+              <div className="text-end">
+                <div className="fw-bold">{card.value}</div>
+                <div className="small cv-tone-positive">{card.gain}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="cv-preview-toast">
+        <span className="cv-preview-toast-icon">✓</span>
+        <div>
+          <div className="fw-semibold">Vendita registrata</div>
+          <div className="small text-secondary">Blastoise · +65,00 € di guadagno</div>
+        </div>
+      </div>
+    </div>
   )
 }

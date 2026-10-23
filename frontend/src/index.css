@@ -16,8 +16,8 @@
   --cv-danger: #ff7a7a;
   /* Riflesso olografico: i colori pastello delle carte holo, tutti leggibili sullo sfondo scuro */
   --cv-holo: linear-gradient(110deg, #ff9ad5, #c7a6ff 25%, #8fd3ff 50%, #8ff5d8 72%, #ffe68a 100%);
-  --cv-font-display: 'Fredoka', system-ui, sans-serif;
-  --cv-font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --cv-font-display: 'Outfit', system-ui, sans-serif;
+  --cv-font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --cv-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   --bs-body-bg: var(--cv-bg);
@@ -67,8 +67,8 @@ h5,
 .navbar-brand,
 .display-font {
   font-family: var(--cv-font-display);
-  letter-spacing: -0.005em;
-  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-weight: 700;
   text-wrap: balance;
 }
 
@@ -752,8 +752,8 @@ a:focus-visible,
 .cv-hero-value {
   font-family: var(--cv-font-display);
   font-size: clamp(2.6rem, 7vw, 3.8rem);
-  font-weight: 700;
-  letter-spacing: -0.015em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   line-height: 1.05;
   font-variant-numeric: tabular-nums;
 }
@@ -761,8 +761,8 @@ a:focus-visible,
 .cv-stat-value {
   font-family: var(--cv-font-display);
   font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
@@ -881,53 +881,121 @@ a:focus-visible,
   background-color: var(--cv-surface);
 }
 
-/* Landing: ventaglio di tre carte vere (immagini di TCGdex) */
-.cv-hero-cards {
+/* Landing: anteprima della dashboard (finta, con i numeri dell'account demo) */
+.cv-preview {
   position: relative;
-  height: 400px;
+  max-width: 460px;
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
 }
 
-.cv-hero-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 220px;
-  aspect-ratio: 63 / 88; /* proporzione di una carta vera, 63 x 88 mm */
-  margin: -154px 0 0 -110px;
-  border-radius: 12px;
+.cv-preview-panel {
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 45%), var(--cv-surface);
+  border: 1px solid var(--cv-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.9);
+}
+
+.cv-preview-live {
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cv-success);
+  background-color: rgba(62, 207, 142, 0.12);
+  border-radius: 999px;
+}
+
+.cv-preview-value {
+  font-family: var(--cv-font-display);
+  font-size: clamp(2rem, 5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cv-preview-gain {
+  font-weight: 700;
+  color: var(--cv-success);
+}
+
+.cv-preview-chart {
+  display: block;
+  width: 100%;
+  height: 72px;
+}
+
+.cv-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--cv-border-soft);
+}
+
+.cv-preview-thumb {
+  width: 34px;
+  aspect-ratio: 63 / 88;
+  border-radius: 4px;
   object-fit: cover;
   background-color: var(--cv-surface-2);
-  box-shadow: 0 30px 50px -22px rgba(0, 0, 0, 0.85);
-  transition: transform 0.5s var(--cv-ease-out);
 }
 
-.cv-hero-card-1 {
-  transform: translateX(-130px) rotate(-12deg);
+/* Avviso che "galleggia" sul bordo del pannello, come una notifica appena arrivata */
+.cv-preview-toast {
+  position: absolute;
+  left: -1.5rem;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--cv-surface-2);
+  border: 1px solid var(--cv-border);
+  border-radius: 1rem;
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.9);
+  animation: cv-toast-in 0.6s 0.4s var(--cv-ease-out) both;
 }
 
-.cv-hero-card-2 {
-  transform: translateX(130px) rotate(12deg);
+.cv-preview-toast-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  font-weight: 800;
+  color: #111;
+  background-color: var(--cv-success);
+  border-radius: 50%;
 }
 
-.cv-hero-card-3 {
-  z-index: 1;
-  transform: translateY(-12px);
+@keyframes cv-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
 
-.cv-hero-cards:hover .cv-hero-card-1 {
-  transform: translateX(-165px) rotate(-16deg);
-}
+/* Telefono: l'avviso sta sotto il pannello, appena sovrapposto al bordo, senza coprire le carte */
+@media (max-width: 575.98px) {
+  .cv-preview {
+    padding-bottom: 0;
+  }
 
-.cv-hero-cards:hover .cv-hero-card-2 {
-  transform: translateX(165px) rotate(16deg);
-}
+  .cv-preview-panel {
+    padding: 1.1rem 1.1rem 1.75rem;
+  }
 
-.cv-hero-cards:hover .cv-hero-card-3 {
-  transform: translateY(-22px) scale(1.03);
+  .cv-preview-toast {
+    position: relative;
+    left: auto;
+    width: fit-content;
+    margin: -1.1rem 0 0 0.75rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cv-hero-card {
-    transition: none;
+  .cv-preview-toast {
+    animation: none;
   }
 }
