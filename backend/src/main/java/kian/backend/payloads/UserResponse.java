@@ -12,9 +12,11 @@ public record UserResponse(
         String username,
         String email,
         Role role,
+        Integer avatarDex,
         LocalDateTime createdAt
 ) {
     public static UserResponse of(User user) {
-        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole(), user.getCreatedAt());
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole(), user.getAvatarDex(),
+                user.getCreatedAt());
     }
 }

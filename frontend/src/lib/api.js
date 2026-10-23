@@ -80,6 +80,8 @@ export const api = {
   register: (data) => request('/api/auth/register', { method: 'POST', body: data, auth: false }),
   login: (data) => request('/api/auth/login', { method: 'POST', body: data, auth: false }),
   me: () => request('/api/users/me'),
+  updateAvatar: (avatarDex) => request('/api/users/me/avatar', { method: 'PATCH', body: { avatarDex } }),
+  pokemon: () => request('/api/pokemon'),
 
   // Carte
   cards: (filters) => request(`/api/cards${query(filters)}`),

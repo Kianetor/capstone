@@ -105,6 +105,7 @@ public class DemoDataInitializer implements ApplicationRunner {
         demo.setEmail(email);
         demo.setPassword(passwordEncoder.encode(password));
         demo.setRole(Role.USER);
+        demo.setAvatarDex(25); // Pikachu
         userRepository.save(demo);
 
         CARDS.forEach(c -> createCard(demo, c));

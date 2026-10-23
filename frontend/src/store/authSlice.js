@@ -54,6 +54,10 @@ const authSlice = createSlice({
       state.user = null
       state.error = null
     },
+    // Dopo una modifica del profilo (es. avatar) il backend restituisce l'utente aggiornato
+    userUpdated(state, action) {
+      state.user = action.payload
+    },
     clearAuthError(state) {
       state.error = null
     },
@@ -93,7 +97,7 @@ const authSlice = createSlice({
   },
 })
 
-export const { loggedOut, clearAuthError } = authSlice.actions
+export const { loggedOut, userUpdated, clearAuthError } = authSlice.actions
 
 // Il logout cancella il token salvato e svuota lo stato
 export const logout = () => (dispatch) => {

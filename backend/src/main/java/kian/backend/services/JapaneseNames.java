@@ -1,5 +1,6 @@
 package kian.backend.services;
 
+import kian.backend.payloads.PokemonResponse;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
@@ -97,6 +98,8 @@ public class JapaneseNames {
     // Dal più lungo al più corto: "ミュウツー" (Mewtwo) va sostituito prima di "ミュウ" (Mew)
     private final List<PokemonName> byJapaneseLength;
     private final Map<String, String> japaneseByEnglish = new HashMap<>();
+    // In ordine di Pokédex, per la scelta dell'avatar
+    private final List<PokemonResponse> pokemon;
 
     public JapaneseNames() {
         try (InputStream in = new ClassPathResource("data/pokemon-names.json").getInputStream()) {
@@ -106,9 +109,17 @@ public class JapaneseNames {
                     .sorted(Comparator.comparingInt((PokemonName p) -> p.ja().length()).reversed())
                     .toList();
             names.forEach(p -> japaneseByEnglish.put(normalize(p.en()), p.ja()));
+            pokemon = names.stream()
+                    .sorted(Comparator.comparingInt(PokemonName::dex))
+                    .map(p -> new PokemonResponse(p.dex(), p.en()))
+                    .toList();
         } catch (IOException e) {
             throw new UncheckedIOException("Tabella dei nomi dei Pokémon non leggibile", e);
         }
+    }
+
+    public List<PokemonResponse> pokemon() {
+        return pokemon;
     }
 
     public static boolean containsJapanese(String text) {

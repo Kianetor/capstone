@@ -73,3 +73,6 @@ export function todayIso() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
+// Artwork ufficiale del Pokémon dal numero di Pokédex (immagini pubbliche di PokéAPI)
+export const pokemonArtwork = (dex) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dex}.png`

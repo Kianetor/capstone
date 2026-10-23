@@ -1,13 +1,17 @@
 import { Button, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { logout } from '../store/authSlice'
+import Avatar from './Avatar'
+import AvatarModal from './AvatarModal'
 import Logo from './Logo'
 
 export default function AppNavbar() {
   const user = useSelector((state) => state.auth.user)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [choosingAvatar, setChoosingAvatar] = useState(false)
 
   const handleLogout = () => {
     dispatch(logout())
@@ -43,9 +47,19 @@ export default function AppNavbar() {
                 </Nav.Link>
               </Nav>
               <Nav>
-                <NavDropdown title={user.username} align="end" id="user-menu">
+                <NavDropdown
+                  title={
+                    <span className="d-inline-flex align-items-center gap-2">
+                      <Avatar user={user} />
+                      {user.username}
+                    </span>
+                  }
+                  align="end"
+                  id="user-menu"
+                >
                   <NavDropdown.ItemText className="small text-secondary">{user.email}</NavDropdown.ItemText>
                   <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={() => setChoosingAvatar(true)}>Cambia avatar</NavDropdown.Item>
                   <NavDropdown.Item onClick={handleLogout}>Esci</NavDropdown.Item>
                 </NavDropdown>
               </Nav>
@@ -74,6 +88,7 @@ export default function AppNavbar() {
           )}
         </Navbar.Collapse>
       </Container>
+      {user && <AvatarModal show={choosingAvatar} user={user} onHide={() => setChoosingAvatar(false)} />}
     </Navbar>
   )
 }

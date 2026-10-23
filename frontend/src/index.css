@@ -250,6 +250,72 @@ a:focus-visible,
   color: var(--cv-accent);
 }
 
+/* Avatar rotondo: il Pokémon intero su sfondo scuro. Il bordo prende il colore del Pokémon
+   (lo calcola il componente Avatar), bianco finché il colore non è pronto */
+.cv-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, var(--cv-surface-2), var(--cv-surface));
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.cv-avatar img {
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
+}
+
+.cv-avatar-initial {
+  font-family: var(--cv-font-display);
+  font-weight: 700;
+  color: var(--cv-text);
+}
+
+.cv-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 0.5rem;
+}
+
+.cv-avatar-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 0.4rem 0.25rem;
+  font-size: 0.75rem;
+  color: var(--cv-muted);
+  background-color: var(--cv-surface);
+  border: 1px solid var(--cv-border-soft);
+  border-radius: 0.6rem;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.cv-avatar-option img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.cv-avatar-option span {
+  max-width: 100%;
+}
+
+.cv-avatar-option:hover,
+.cv-avatar-option.active {
+  color: var(--cv-text);
+  background-color: var(--cv-surface-2);
+  border-color: var(--cv-accent);
+}
+
 .cv-logo {
   color: var(--cv-accent);
   filter: drop-shadow(0 0 10px rgba(255, 203, 5, 0.35));

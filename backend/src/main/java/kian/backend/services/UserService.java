@@ -5,6 +5,7 @@ import kian.backend.entities.User;
 import kian.backend.exceptions.BadRequestException;
 import kian.backend.exceptions.NotFoundException;
 import kian.backend.exceptions.UnauthorizedException;
+import kian.backend.payloads.AvatarRequest;
 import kian.backend.payloads.LoginRequest;
 import kian.backend.payloads.LoginResponse;
 import kian.backend.payloads.RegisterRequest;
@@ -65,6 +66,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse me(UUID userId) {
         return UserResponse.of(findById(userId));
+    }
+
+    @Transactional
+    public UserResponse updateAvatar(UUID userId, AvatarRequest request) {
+        User user = findById(userId);
+        user.setAvatarDex(request.avatarDex());
+        return UserResponse.of(user);
     }
 
     // Usato dagli altri service per collegare carte e transazioni al proprietario

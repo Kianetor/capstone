@@ -30,6 +30,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    // Numero di Pokédex del Pokémon scelto come avatar; null = iniziale dello username
+    @Column(name = "avatar_dex")
+    private Integer avatarDex;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
