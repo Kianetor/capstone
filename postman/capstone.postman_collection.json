@@ -124,6 +124,69 @@
               ]
             }
           }
+        },
+        {
+          "name": "Cambia avatar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/avatar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "avatar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatarDex\": 25\n}"
+            }
+          }
+        },
+        {
+          "name": "Elenco Pokémon (avatar)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -204,6 +267,47 @@
                 {
                   "key": "sort",
                   "value": "estimatedValue,desc"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "12"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Inventario raggruppato",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cards/groups?sort=quantity,desc&page=0&size=12",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cards",
+                "groups"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "quantity,desc"
                 },
                 {
                   "key": "page",
@@ -590,6 +694,145 @@
                 {
                   "key": "lang",
                   "value": "en"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Serie",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/external/series?lang=it",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "external",
+                "series"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "it"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set di una serie",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/external/series/sv?lang=it",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "external",
+                "series",
+                "sv"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "it"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ultime espansioni",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/external/sets/latest?lang=it&limit=12",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "external",
+                "sets",
+                "latest"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "it"
+                },
+                {
+                  "key": "limit",
+                  "value": "12"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Carte di un set",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/external/sets/sv03.5?lang=it",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "external",
+                "sets",
+                "sv03.5"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "it"
                 }
               ]
             },
