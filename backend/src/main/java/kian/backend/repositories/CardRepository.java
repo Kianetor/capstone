@@ -15,6 +15,9 @@ public interface CardRepository extends JpaRepository<Card, UUID>, JpaSpecificat
     // La carta di un altro utente per noi non esiste: stessa risposta (404) di un id inesistente
     Optional<Card> findByIdAndUserId(UUID id, UUID userId);
 
+    // Usato dall'account demo per sapere se ha già una certa carta gradata
+    boolean existsByUserIdAndExternalIdAndGradedTrue(UUID userId, String externalId);
+
     // Carte diverse possedute: quelle con 0 copie (tutte vendute) non contano
     long countByUserIdAndQuantityGreaterThan(UUID userId, int quantity);
 

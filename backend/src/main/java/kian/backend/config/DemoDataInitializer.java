@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-// Account dimostrativo per chi apre la versione online: 15 carte vere (dati e prezzi da TCGdex/Cardmarket)
+// Account dimostrativo per chi apre la versione online: carte vere (dati e prezzi da TCGdex/Cardmarket)
 // con acquisti e qualche vendita. Si crea solo se l'account non esiste, quindi non tocca mai altri dati.
 // Attivo con app.demo.enabled=true (profilo prod)
 @Slf4j
@@ -83,6 +83,18 @@ public class DemoDataInitializer implements ApplicationRunner {
                     1, "22.00", "2026-07-10", "Fiera", new Sale(1, "35", "2026-10-14", "eBay"))
     );
 
+    // Aggiunte dopo il primo deploy: altre versioni del Charizard Base Set, per mostrare le copie raggruppate
+    private static final List<DemoCard> EXTRA_CARDS = List.of(
+            new DemoCard("Charizard", "Base Set", "4/102", Language.ENG, CardCondition.PLAYED, null, null,
+                    "310.00", "https://assets.tcgdex.net/en/base/base1/4/high.webp", "base1-4",
+                    2, "240.00", "2026-09-02", "Cardmarket", null),
+            new DemoCard("Charizard", "Base Set", "4/102", Language.ENG, CardCondition.NEAR_MINT, "PSA", 9.0,
+                    "2900.00", "https://assets.tcgdex.net/en/base/base1/4/high.webp", "base1-4",
+                    1, "2450.00", "2026-08-15", "Fiera", null)
+    );
+
+    private static final int DEMO_AVATAR = 25; // Pikachu
+
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
     private final TransactionRepository transactionRepository;
@@ -97,19 +109,33 @@ public class DemoDataInitializer implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        if (userRepository.existsByEmail(email)) {
-            return;
-        }
+        userRepository.findByEmail(email).ifPresentOrElse(this::update, this::create);
+    }
+
+    private void create() {
         User demo = new User();
         demo.setUsername("demo");
         demo.setEmail(email);
         demo.setPassword(passwordEncoder.encode(password));
         demo.setRole(Role.USER);
-        demo.setAvatarDex(25); // Pikachu
+        demo.setAvatarDex(DEMO_AVATAR);
         userRepository.save(demo);
 
         CARDS.forEach(c -> createCard(demo, c));
-        log.info("Creato account demo con {} carte", CARDS.size());
+        EXTRA_CARDS.forEach(c -> createCard(demo, c));
+        log.info("Creato account demo con {} carte", CARDS.size() + EXTRA_CARDS.size());
+    }
+
+    // Account demo creato prima dell'avatar e delle carte extra: le aggiungiamo una volta sola.
+    // Dopo l'aggiornamento ha l'avatar e il Charizard gradato, quindi qui non si entra più
+    private void update(User demo) {
+        if (demo.getAvatarDex() != null
+                || cardRepository.existsByUserIdAndExternalIdAndGradedTrue(demo.getId(), "base1-4")) {
+            return;
+        }
+        demo.setAvatarDex(DEMO_AVATAR);
+        EXTRA_CARDS.forEach(c -> createCard(demo, c));
+        log.info("Aggiornato account demo con avatar e {} carte", EXTRA_CARDS.size());
     }
 
     // Le copie della carta sono quelle comprate meno quelle vendute, come se le transazioni fossero state registrate dall'app
