@@ -4,6 +4,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import CatalogCard from '../components/CatalogCard'
 import ErrorMessage from '../components/ErrorMessage'
 import Loader from '../components/Loader'
+import SetLogo from '../components/SetLogo'
 import { api } from '../lib/api'
 import { formatDate } from '../lib/format'
 
@@ -15,7 +16,6 @@ export default function ExploreSet() {
   const [set, setSet] = useState(null)
   const [error, setError] = useState(null)
   const [filter, setFilter] = useState('')
-  const [logoFailed, setLogoFailed] = useState(false)
 
   useEffect(() => {
     let current = true
@@ -55,11 +55,7 @@ export default function ExploreSet() {
       </Link>
 
       <div className="d-flex align-items-center gap-4 flex-wrap mt-3 mb-4">
-        {set.logoUrl && !logoFailed && (
-          <div className="cv-set-logo cv-set-logo-lg">
-            <img src={set.logoUrl} alt={set.name} onError={() => setLogoFailed(true)} />
-          </div>
-        )}
+        <SetLogo key={set.logoUrl} url={set.logoUrl} name={set.name} large hideIfMissing />
         <div>
           <h1 className="h2 mb-1">{set.name}</h1>
           <div className="text-secondary">

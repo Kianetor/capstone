@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -57,6 +58,7 @@ public class ExternalCardService {
 
     // Serie, set e loro contenuto cambiano di rado: li teniamo in memoria per 12 ore invece di chiederli ogni volta
     private static final Duration CACHE_DURATION = Duration.ofHours(12);
+    private static final int MIN_EXPANSION_CARDS = 50;
     private final Map<String, Cached> cache = new ConcurrentHashMap<>();
     // "Pokémon TCG Pocket" è un gioco digitale: non ha carte fisiche da collezionare
     private static final Set<String> EXCLUDED_SERIES = Set.of("tcgp");
@@ -272,7 +274,8 @@ public class ExternalCardService {
             TcgdexSetFull set = fetch(TcgdexSetFull.class, "/{lang}/sets/{id}", language, id)
                     .orElseThrow(() -> new NotFoundException("Set non trovato"));
             TcgdexCardCount count = set.cardCount();
-            return new ExternalSetDetail(set.id(), setName(language, set.id(), set.name()), logo(set.logo()),
+            return new ExternalSetDetail(set.id(), setName(language, set.id(), set.name()),
+                    setLogo(set.id(), set.logo(), language),
                     date(set.releaseDate()), set.serie() != null ? set.serie().id() : null,
                     set.serie() != null ? seriesName(language, set.serie().id(), set.serie().name()) : null,
                     count != null ? count.official() : null, count != null ? count.total() : null,
@@ -282,7 +285,9 @@ public class ExternalCardService {
         }));
     }
 
-    // Gli ultimi set usciti con un logo, scorrendo le serie dalla più recente: per la vetrina della landing page
+    // Gli ultimi set usciti, scorrendo le serie dalla più recente: per la vetrina della landing page.
+    // Solo le espansioni vere: con un logo o con almeno MIN_EXPANSION_CARDS carte (TCGdex a volte non ha ancora
+    // il logo dei set appena usciti); promo ed energie, senza logo e con poche carte, restano fuori
     public List<ExternalSetSummary> latestSets(String lang, Integer limit) {
         int max = limit == null ? 12 : limit;
         if (max < 1 || max > 30) {
@@ -294,7 +299,8 @@ public class ExternalCardService {
                 if (result.size() == max) {
                     return result;
                 }
-                if (set.logoUrl() != null) {
+                if (set.logoUrl() != null
+                        || (set.officialCount() != null && set.officialCount() >= MIN_EXPANSION_CARDS)) {
                     result.add(set);
                 }
             }
@@ -332,8 +338,26 @@ public class ExternalCardService {
 
     private ExternalSetSummary setSummary(TcgdexSet s, String language) {
         TcgdexCardCount count = s.cardCount();
-        return new ExternalSetSummary(s.id(), setName(language, s.id(), s.name()), logo(s.logo()),
+        return new ExternalSetSummary(s.id(), setName(language, s.id(), s.name()), setLogo(s.id(), s.logo(), language),
                 count != null ? count.official() : null, count != null ? count.total() : null);
+    }
+
+    // Molti set non hanno il logo nella loro lingua (in italiano manca a più di metà): usiamo quello inglese.
+    // I set giapponesi hanno id diversi, per loro il logo inglese non si trova e resta null
+    private String setLogo(String setId, String base, String language) {
+        if (base != null || "en".equals(language)) {
+            return logo(base);
+        }
+        return logo(englishLogos().get(setId));
+    }
+
+    // Id del set -> indirizzo del logo inglese (senza estensione), dall'elenco dei set già in cache
+    private Map<String, String> englishLogos() {
+        return cached("logos:en", () -> {
+            Map<String, String> logos = new HashMap<>();
+            sets("en").stream().filter(set -> set.logo() != null).forEach(set -> logos.put(set.id(), set.logo()));
+            return Map.copyOf(logos);
+        });
     }
 
     // Come per le immagini delle carte, TCGdex dà l'indirizzo del logo senza estensione

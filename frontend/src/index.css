@@ -834,10 +834,21 @@ a:focus-visible,
   object-fit: contain;
 }
 
+/* Set senza logo (es. appena uscito, TCGdex non l'ha ancora): il nome scritto, su fondo scuro con un bordo olografico */
+.cv-set-logo-missing {
+  background:
+    radial-gradient(circle at 50% 30%, var(--cv-surface-2), var(--cv-surface)) padding-box,
+    var(--cv-holo) border-box;
+  border: 1px solid transparent;
+}
+
 .cv-set-logo span {
-  color: #14181f;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-family: var(--cv-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--cv-text);
 }
 
 .cv-set-logo-lg {
